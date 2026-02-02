@@ -71,6 +71,14 @@ export default {
       scrollOffset: 90,
       publications: [
         {
+          year: 2026,
+          authors: "Liu S, Feng X, Wu Y, Bu F.",
+          title:
+            "Neural – adipose crosstalk: Shared genetic architecture of visceral fat and neuropsychiatric disorders.",
+          journal: "J Adv Res",
+          journalUrl: "https://www.sciencedirect.com/science/article/pii/S2090123226001050?via%3Dihub#f0005"
+        },
+        {
           year: 2025,
           authors: "Liu S, Feng X, Wu Y, Bu F.",
           title:
