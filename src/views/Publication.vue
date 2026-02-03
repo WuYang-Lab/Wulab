@@ -72,7 +72,7 @@ export default {
       publications: [
         {
           year: 2026,
-          authors: "Liu S, Feng X, Wu Y, Bu F.",
+          authors: "Xia JW, Li JJ, Chen SQ, et al.",
           title:
             "Neural – adipose crosstalk: Shared genetic architecture of visceral fat and neuropsychiatric disorders.",
           journal: "J Adv Res",
