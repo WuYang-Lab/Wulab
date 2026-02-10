@@ -143,10 +143,12 @@ export default {
         require("@/assets/news/discussion.jpg"),
         require("@/assets/news/2024teacher.jpg"),
         require("@/assets/news/2025teacher.jpg"),
-        require("@/assets/news/wulab.png"),
+        // require("@/assets/news/wulab.png"),
         require("@/assets/news/20250619.jpg"),
         require("@/assets/news/20250703.jpg"),
         require("@/assets/news/20250418.jpg"),
+        require("@/assets/news/20260209-1.jpg"),
+        require("@/assets/news/20260209-3.jpg"),
       ],
 
       mwCenter: 0,

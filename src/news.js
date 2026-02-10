@@ -158,4 +158,14 @@ export const newsList = [
     type: "ACADEMIC",
     link: "https://fscdrmn.wchscu.cn/detail.html?id=211"
   },
+
+  {
+    id: 18,
+    image: require("@/assets/news/20260209-1.jpg"),
+    title: "Party",
+    description: "Lab Year-End Gathering.",
+    date: { month: "February", day: "09", year: "2026" },
+    type: "PARTY",
+    link: ""
+  },
 ];
