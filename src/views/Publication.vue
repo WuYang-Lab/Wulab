@@ -75,7 +75,7 @@ export default {
           authors: "Xia JW, Li JJ, Chen SQ, et al.",
           title:
             "Neural – adipose crosstalk: Shared genetic architecture of visceral fat and neuropsychiatric disorders.",
-          journal: "J Adv Res",
+          journal: " J Adv Res. 2:S2090-1232(26)00105-0",
           journalUrl: "https://www.sciencedirect.com/science/article/pii/S2090123226001050?via%3Dihub#f0005"
         },
         {
