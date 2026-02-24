@@ -72,6 +72,14 @@ export default {
       publications: [
         {
           year: 2026,
+          authors: "Shi L, He H, Li J, et al.",
+          title:
+            "Multi-ancestry GWAS of age-related hearing loss identifies 140 loci and key cellular mechanisms.",
+          journal: " Nat Commun.",
+          journalUrl: "https://www.nature.com/articles/s41467-026-69894-z"
+        },
+        {
+          year: 2026,
           authors: "Xia JW, Li JJ, Chen SQ, et al.",
           title:
             "Neural – adipose crosstalk: Shared genetic architecture of visceral fat and neuropsychiatric disorders.",
