@@ -14,7 +14,7 @@ export const newsList = [
     id: 2,
     image: require("@/assets/news/huaxi.png"),
     title: "Grant Awarded to Dr. Fang Wang",
-    description: "Congratulations to Fang Wang on receiving the West China Hospital of Sichuan University Full-time Postdoctoral Research and Development Grant.",
+    description: "Congratulations to Fang on receiving the West China Hospital of Sichuan University Full-time Postdoctoral Research and Development Grant.",
     date: { month: "September", day: "19", year: "2025" },
     type: "CONGRATULATION",
     link: ""
@@ -32,7 +32,7 @@ export const newsList = [
     id: 4,
     image: require("@/assets/news/yichuanxuehui.jpg"),
     title: "Academic conference exchange",
-    description: "Fang Wang, Haibing, Kai Gai and Lulu attended the inaugural ceremony of the Human Population Health and Common Disease Genetics Branch of the Genetics Society of China.",
+    description: "Fang, Haibing, Kai and Lulu attended the inaugural ceremony of the Human Population Health and Common Disease Genetics Branch of the Genetics Society of China.",
     date: { month: "October", day: "22", year: "2025" },
     type: "ACADEMIC",
     link: ""
@@ -143,7 +143,7 @@ export const newsList = [
     id: 16,
     image: require("@/assets/news/20251212.jpg"),
     title: "Academic Lecture",
-    description: "Dr. Yang Wu invited Prof. Zhe Zhang to deliver an academic lecture at the Institute for Rare Diseases entitled “Integrative Multi-omics Analyses for Genetic Dissection of Complex Traits in Pigs”.",
+    description: "Yang invited Prof. Zhe Zhang to deliver an academic lecture at the Institute for Rare Diseases entitled “Integrative Multi-omics Analyses for Genetic Dissection of Complex Traits in Pigs”.",
     date: { month: "December", day: "12", year: "2025" },
     type: "ACADEMIC",
     link: "https://fscdrmn.wchscu.cn/detail.html?id=211"
@@ -153,7 +153,7 @@ export const newsList = [
     id: 17,
     image: require("@/assets/news/20250409.jpg"),
     title: "Academic Lecture",
-    description: "Dr. Yang Wu invited Prof. Zilin Li to deliver an academic lecture at the Institute for Rare Diseases entitled “STAARpipeline: All-in-one analysis tool for biobank-scale whole-genome sequencing data”.",
+    description: "Yang invited Prof. Zilin Li to deliver an academic lecture at the Institute for Rare Diseases entitled “STAARpipeline: All-in-one analysis tool for biobank-scale whole-genome sequencing data”.",
     date: { month: "April", day: "09", year: "2025" },
     type: "ACADEMIC",
     link: "https://fscdrmn.wchscu.cn/detail.html?id=211"
