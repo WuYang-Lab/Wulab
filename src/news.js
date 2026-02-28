@@ -168,4 +168,14 @@ export const newsList = [
     type: "PARTY",
     link: ""
   },
+
+  {
+    id: 19,
+    image: require("@/assets/news/NC-lu.png"),
+    title: "Publication",
+    description: "Congratiulations to Lulu on the publication of the Age-related hearing loss paper in Nature Communications!",
+    date: { month: "February", day: "21", year: "2026" },
+    type: "PUBLICATION",
+    link: "https://www.nature.com/articles/s41467-026-69894-z?utm_source=researchgate.net&utm_medium=article"
+  },
 ];
