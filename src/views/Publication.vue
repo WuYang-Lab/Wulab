@@ -72,6 +72,14 @@ export default {
       publications: [
         {
           year: 2026,
+          authors: "Wu, Y., Zheng, Z., Thibaut, L. et al.",
+          title:
+            "Genome-wide fine-mapping improves identification of causal variants.",
+          journal: "Nat Genet.",
+          journalUrl: "https://www.nature.com/articles/s41588-026-02549-3"
+        },
+        {
+          year: 2026,
           authors: "Shi L, He H, Li J, et al.",
           title:
             "Multi-ancestry GWAS of age-related hearing loss identifies 140 loci and key cellular mechanisms.",

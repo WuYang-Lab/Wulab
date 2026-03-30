@@ -178,4 +178,14 @@ export const newsList = [
     type: "PUBLICATION",
     link: "https://www.nature.com/articles/s41467-026-69894-z?utm_source=researchgate.net&utm_medium=article"
   },
+
+  {
+    id: 20,
+    image: require("@/assets/news/NG-yang.png"),
+    title: "Publication",
+    description: "Congratiulations to Yang on the publication of his GWFM work in Nature Genetics! A huge milestone for the lab and truly inspiring for all of us.",
+    date: { month: "March", day: "30", year: "2026" },
+    type: "PUBLICATION",
+    link: "https://www.nature.com/articles/s41588-026-02549-3"
+  },
 ];
