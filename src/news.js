@@ -1,15 +1,15 @@
 // src/data/news.js
 // ✅ 单一数据源：Home 的 RECENT NEWS 和 NewsPage 共用这一份
 export const newsList = [
-  {
-    id: 1,
-    image: require("@/assets/news/wulab.png"),
-    title: "Wulab website is now live!",
-    description: "We are pleased to announce the launch of the Wulab website, which showcases our research interests, team members, publications, and ongoing projects. The site will serve as a central platform for sharing updates, resources, and opportunities for collaboration.",
-    date: { month: "March", day: "12", year: "2026" },
-    type: "LAB ACTIVITIES",
-    link: ""
-  },
+  // {
+  //   id: 1,
+  //   image: require("@/assets/news/wulab.png"),
+  //   title: "Wulab website is now live!",
+  //   description: "We are pleased to announce the launch of the Wulab website, which showcases our research interests, team members, publications, and ongoing projects. The site will serve as a central platform for sharing updates, resources, and opportunities for collaboration.",
+  //   date: { month: "March", day: "12", year: "2026" },
+  //   type: "LAB ACTIVITIES",
+  //   link: ""
+  // },
   {
     id: 2,
     image: require("@/assets/news/huaxi.png"),
