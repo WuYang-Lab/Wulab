@@ -188,4 +188,14 @@ export const newsList = [
     type: "PUBLICATION",
     link: "https://www.nature.com/articles/s41588-026-02549-3"
   },
+
+  {
+    id: 21,
+    image: require("@/assets/news/npj-aging-kai.png"),
+    title: "Publication",
+    description: "Congratiulations to Kai on the publication of her human longevity paper in npj Aging!",
+    date: { month: "April", day: "16", year: "2026" },
+    type: "PUBLICATION",
+    link: "https://www.nature.com/articles/s41514-026-00384-8"
+  },
 ];

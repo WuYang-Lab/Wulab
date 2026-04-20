@@ -72,10 +72,18 @@ export default {
       publications: [
         {
           year: 2026,
+          authors: "Gai, K., Li, W., Li, J. et al.",
+          title:
+            "Genetic and molecular factors underlying human longevity and epigenetic aging.",
+          journal: "npj Aging.",
+          journalUrl: "https://www.nature.com/articles/s41514-026-00384-8"
+        },
+        {
+          year: 2026,
           authors: "Wu, Y., Zheng, Z., Thibaut, L. et al.",
           title:
             "Genome-wide fine-mapping improves identification of causal variants.",
-          journal: "Nat Genet.",
+          journal: "Nat Genet. 58, 940-951",
           journalUrl: "https://www.nature.com/articles/s41588-026-02549-3"
         },
         {
