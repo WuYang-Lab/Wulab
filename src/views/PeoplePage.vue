@@ -687,7 +687,7 @@ export default {
       ],
 
       pi: {
-        name: "Dr.Yang Wu",
+        name: "Dr. Yang Wu",
         role: "Principal Investigator",
         tags: ["Statistical Genetics", "Multi-omics", "Population Health"],
         intro:

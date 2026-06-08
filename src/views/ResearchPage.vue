@@ -10,8 +10,7 @@
         @mouseleave="onCardLeave"
       >
         <p>
-          We are a research group focused on developing innovative methods and applying multi-omics approaches to
-          understand human genetics, disease risk, and population health.
+          We are a research group dedicated to developing novel statistical methods and multi-omics resources to advance our understanding of disease susceptibility and population health. 
         </p>
       </div>
 
@@ -21,8 +20,8 @@
             <img src="@/assets/direction/method.png" alt="Statistical & Genetic Analysis" />
           </div>
           <div class="card-content">
-            <h2>Statistical & Genetic Analysis Method Development</h2>
-            <p>Developing scalable statistical and genetic methods for analyzing complex genomic data.</p>
+            <h2>Statistical Genetics Method Development</h2>
+            <p>Developing scalable and robust statistical genetic methods for analyzing large-scale genomic and multi-omics datasets.</p>
           </div>
         </div>
 
@@ -31,8 +30,8 @@
             <img src="@/assets/direction/singlecell.png" alt="Single-Cell Multi-Omics" />
           </div>
           <div class="card-content">
-            <h2>Single-Cell Multi-Omics Research</h2>
-            <p>Integrating multi-omics at single-cell resolution to understand cellular heterogeneity.</p>
+            <h2>Single-Cell Multi-Omics Analysis</h2>
+            <p>Integrating multi-omics data at single-cell resolution to characterize cellular heterogeneity and uncover disease-relevant biological mechanisms.</p>
           </div>
         </div>
 
@@ -41,8 +40,8 @@
             <img src="@/assets/direction/correlation.png" alt="Disease Risk Prediction" />
           </div>
           <div class="card-content">
-            <h2>Disease Risk Prediction & New Model Development</h2>
-            <p>Building predictive models for complex disease risk using genetic and omics data.</p>
+            <h2>Disease Risk Prediction</h2>
+            <p>Building predictive models that combine genomic and other omics data to improve risk assessment and stratification for complex diseases.</p>
           </div>
         </div>
 
@@ -51,8 +50,8 @@
             <img src="@/assets/direction/population.png" alt="Genomic Variation" />
           </div>
           <div class="card-content">
-            <h2>Genomic Variation & Population Health Research</h2>
-            <p>Studying human genomic variation to inform population health and precision medicine.</p>
+            <h2>Genomic Variation and Population Health</h2>
+            <p>Characterizing human genomic variation across populations and  investigating its links with health outcome. </p>
           </div>
         </div>
 
@@ -62,7 +61,7 @@
           </div>
           <div class="card-content">
             <h2>Novel Gene Discovery for Complex Diseases</h2>
-            <p>Identifying new genetic loci associated with complex disease susceptibility and mechanisms.</p>
+            <p>Identifying novel genetic loci and candidate genes associated with complex diseases.</p>
           </div>
         </div>
 

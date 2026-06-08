@@ -60,9 +60,9 @@
         <!-- ✅ 文案底板：放在 PUBLICATION 正上方，与上图轻微重叠 -->
         <div class="hero-blurb-wrap">
           <div class="hero-blurb">
-            We are a team that interested in developing <span class="hero-key">statistical genetics</span> and
-            <span class="hero-key">multi-omics</span> methods to understand
-            <span class="hero-key">human disease risk</span> and
+            We are a research group dedicated to developing <span class="hero-key"> novel statistical methods</span> and
+            <span class="hero-key">multi-omics</span> resources to advanced our understanding of
+            <span class="hero-key">disease susceptibility</span> and
             <span class="hero-key">population health</span>.
           </div>
 

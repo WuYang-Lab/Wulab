@@ -72,6 +72,14 @@ export default {
       publications: [
         {
           year: 2026,
+          authors: "Lian, X., Song, S., Lou, C. et al.",
+          title:
+            "Multi-omics pleiotropic association analyses reveal functionally relevant genes and druggable pathways for ovarian aging",
+          journal: "Genome Biol.",
+          journalUrl: "https://link.springer.com/article/10.1186/s13059-026-04118-7"
+        },
+        {
+          year: 2026,
           authors: "Gai, K., Li, W., Li, J. et al.",
           title:
             "Genetic and molecular factors underlying human longevity and epigenetic aging.",
@@ -91,7 +99,7 @@ export default {
           authors: "Shi L, He H, Li J, et al.",
           title:
             "Multi-ancestry GWAS of age-related hearing loss identifies 140 loci and key cellular mechanisms.",
-          journal: " Nat Commun.",
+          journal: " Nat Commun. 17(1):4325",
           journalUrl: "https://www.nature.com/articles/s41467-026-69894-z"
         },
         {
