@@ -198,4 +198,14 @@ export const newsList = [
     type: "PUBLICATION",
     link: "https://www.nature.com/articles/s41514-026-00384-8"
   },
+
+  {
+    id: 22,
+    image: require("@/assets/news/guoziranC.jpg"),
+    title: "Grant Awarded to Dr. Fang Wang",
+    description: "Congratulations to Fang on receiving the Young Scientists Fund of the National Natural Science Foundation of China.",
+    date: { month: "August", day: "26", year: "2026" },
+    type: "CONGRATULATION",
+    link: ""
+  },
 ];
