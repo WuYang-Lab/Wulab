@@ -841,11 +841,11 @@ export default {
         {
           name: "Enlai Cai",
           role: "Undergraduate",
-          tags: ["Visualization", "Web", "Figures"],
-          email: "ugA@lab.org",
-          interest: "Figures & dashboards",
-          hobby: "",
-          photo: ""
+          tags: ["GWAS Meta-analysis", "Complex Traits", "Multi-omics"],
+          email: "caienlai@stu.scu.edu.cn",
+          interest: "GWAS and multi-organ omics disease research",
+          hobby: "Music, football",
+          photo: require("@/assets/people/caienlai.jpg")
         }
       ],
 
