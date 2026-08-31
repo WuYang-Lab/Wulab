@@ -806,7 +806,7 @@ export default {
         },
         {
           name: "Miaomiao Tang",
-          role: "Research Assistant",
+          role: "PhD Student",
           tags: ["Mendelian Randomization", "ROH", "Endogenous Retroviruses (ERVs)"],
           email: "tangmiaomiao@wchscu.cn",
           interest:
