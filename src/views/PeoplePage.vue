@@ -829,10 +829,10 @@ export default {
         {
           name: "Yiqing Yan",
           role: "Master Student",
-          tags: ["Multi-trait Analysis", "Complex Traits", "Method Development"],
-          email: "yuke123@stu.scu.edu.cn",
-          interest: "Investigating the relationships and shared genetic architecture among multiple traits, with an emphasis on algorithm development for large-scale integrative and multivariate genetic analyses.",
-          hobby: "Game",
+          tags: ["GWAS Meta-analysis", "Complex Traits", "Multi-omics"],
+          email: "yanyiqing@stu.scu.edu.cn",
+          interest: "GWAS and multi‑omics integration to investigate the genetic architecture underlying complex diseases.",
+          hobby: "Music, Table tennis",
           photo: require("@/assets/people/yuke.jpg")
         }
       ],
