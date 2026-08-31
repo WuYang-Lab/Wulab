@@ -881,8 +881,12 @@ export default {
 
       alumni: [
         {
+          name: "Ziyu Wang",
+          detail: "visiting student (2026). — Now at Wenzhou Medical University."
+        },
+        {
           name: "Ming Zhu",
-          detail: "visiting student (2024). — Now at Wenzhou Medical University."
+          detail: "visiting student (2024, 2026). — Now at Wenzhou Medical University."
         },
         {
           name: "Kanglu Pei",
