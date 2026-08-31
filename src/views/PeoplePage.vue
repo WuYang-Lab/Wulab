@@ -736,14 +736,14 @@ export default {
 
       rassistant: [
         {
-          name: "Zesong Cheng",
+          name: "Kai Gai",
           role: "Research Assistant",
-          tags: ["Multi-omics", "Machine Learning", "Risk Prediction"],
-          email: "cheng_zesong@wchscu.edu.cn",
+          tags: ["Rare variants", "Multi-omics", "Mendelian Randomization"],
+          email: "gaikai@wchscu.edu.cn",
           interest:
-            "Integration of large-scale population cohorts and multi-omics data with machine learning and genetic epidemiology to model disease risk and elucidate life-course mechanisms of aging and cardiometabolic diseases.",
-          hobby: "Table tennis, badminton",
-          photo: require("@/assets/people/chengzesong.jpg")
+            "Investigating rare variant burden in rare diseases, and performing Mendelian randomization and multi-omics integration analyses in complex diseases.",
+          hobby: "Music",
+          photo: require("@/assets/people/gaikai.jpg")
         },
         {
           name: "Haibing He",
@@ -755,28 +755,37 @@ export default {
           photo: require("@/assets/people/hehaibing.jpg")
         },
         {
-          name: "Miaomiao Tang",
+          name: "Zesong Cheng",
           role: "Research Assistant",
-          tags: ["Mendelian Randomization", "ROH", "Endogenous Retroviruses (ERVs)"],
-          email: "tangmiaomiao@wchscu.cn",
+          tags: ["Multi-omics", "Machine Learning", "Risk Prediction"],
+          email: "cheng_zesong@wchscu.edu.cn",
           interest:
-            "Integrative human genomics and population genetics to dissect the genetic architecture of brain-related traits, rare diseases, and complex traits—leveraging Mendelian randomization, ROH analyses, whole-genome sequencing of ERVs, and evolutionary perspectives on environmental selection.",
-          hobby: "Cycling, swimming, badminton",
-          photo: require("@/assets/people/tangmiaomiao.jpg")
+            "Integration of large-scale population cohorts and multi-omics data with machine learning and genetic epidemiology to model disease risk and elucidate life-course mechanisms of aging and cardiometabolic diseases.",
+          hobby: "Table tennis, badminton",
+          photo: require("@/assets/people/chengzesong.jpg")
         },
-        {
-          name: "Kai Gai",
-          role: "Research Assistant",
-          tags: ["Rare variants", "Multi-omics", "Mendelian Randomization"],
-          email: "gaikai@wchscu.edu.cn",
-          interest:
-            "Investigating rare variant burden in rare diseases, and performing Mendelian randomization and multi-omics integration analyses in complex diseases.",
-          hobby: "Music",
-          photo: require("@/assets/people/gaikai.jpg")
-        }
       ],
 
       phd: [
+      {
+          name: "Junpeng Li",
+          role: "PhD Student",
+          tags: ["Multi-omics", "Complex Diseases", "Large-scale Cohort Analysis"],
+          email: "lijunpeng1@stu.scu.edu.cn",
+          interest: "Leveraging large-scale genetic cohorts (e.g., UK Biobank) and integrative multi-omics analyses to dissect disease mechanisms, identify shared molecular pathways and genetic architectures across diseases, and uncover potential therapeutic targets for precision medicine.",
+          hobby: "Swimming, badminton, roller skating, movies, music, and gaming",
+          photo: require("@/assets/people/lijunpeng.jpg")
+        },
+       {
+          name: "Lulu Shi",
+          role: "PhD Student",
+          tags: ["GWAS Meta-analysis", "Multi-omics", "Method Development"],
+          email: "shilulu@stu.wchscu.cn",
+          interest:
+            "Multi-ancestry GWAS and integrative genomic analyses of complex diseases, and algorithm development for omics integration.",
+          hobby: "Cycling, Music, LOL",
+          photo: require("@/assets/people/shilulu.jpg")
+        },
         {
           name: "Hongceng Jiang",
           role: "PhD Student",
@@ -796,29 +805,29 @@ export default {
           photo: require("@/assets/people/yiwenfeng.jpg")
         },
         {
-          name: "Lulu Shi",
-          role: "PhD Student",
-          tags: ["GWAS Meta-analysis", "Multi-omics", "Method Development"],
-          email: "shilulu@stu.wchscu.cn",
+          name: "Miaomiao Tang",
+          role: "Research Assistant",
+          tags: ["Mendelian Randomization", "ROH", "Endogenous Retroviruses (ERVs)"],
+          email: "tangmiaomiao@wchscu.cn",
           interest:
-            "Multi-ancestry GWAS and integrative genomic analyses of complex diseases, and algorithm development for omics integration.",
-          hobby: "Cycling, Music, LOL",
-          photo: require("@/assets/people/shilulu.jpg")
-        },
-        {
-          name: "Junpeng Li",
-          role: "PhD Student",
-          tags: ["Multi-omics", "Complex Diseases", "Large-scale Cohort Analysis"],
-          email: "lijunpeng1@stu.scu.edu.cn",
-          interest: "Leveraging large-scale genetic cohorts (e.g., UK Biobank) and integrative multi-omics analyses to dissect disease mechanisms, identify shared molecular pathways and genetic architectures across diseases, and uncover potential therapeutic targets for precision medicine.",
-          hobby: "Swimming, badminton, roller skating, movies, music, and gaming",
-          photo: require("@/assets/people/lijunpeng.jpg")
+            "Integrative human genomics and population genetics to dissect the genetic architecture of brain-related traits, rare diseases, and complex traits—leveraging Mendelian randomization, ROH analyses, whole-genome sequencing of ERVs, and evolutionary perspectives on environmental selection.",
+          hobby: "Cycling, swimming, badminton",
+          photo: require("@/assets/people/tangmiaomiao.jpg")
         }
       ],
 
       master: [
         {
           name: "Ke Yu",
+          role: "Master Student",
+          tags: ["Multi-trait Analysis", "Complex Traits", "Method Development"],
+          email: "yuke123@stu.scu.edu.cn",
+          interest: "Investigating the relationships and shared genetic architecture among multiple traits, with an emphasis on algorithm development for large-scale integrative and multivariate genetic analyses.",
+          hobby: "Game",
+          photo: require("@/assets/people/yuke.jpg")
+        },
+        {
+          name: "Yiqing Yan",
           role: "Master Student",
           tags: ["Multi-trait Analysis", "Complex Traits", "Method Development"],
           email: "yuke123@stu.scu.edu.cn",
@@ -877,7 +886,7 @@ export default {
         },
         {
           name: "Kanglu Pei",
-          detail: "visiting student (2024). — Now PhD student at the University of Oxford."
+          detail: "visiting student (2024). — Now Master student at the University of Oxford."
         },
       ]
     };
