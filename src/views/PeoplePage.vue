@@ -702,15 +702,6 @@ export default {
 
       postdocs: [
         {
-          name: "Tianpeng Chang",
-          role: "Postdoctoral Fellow",
-          tags: ["scRNA", "Mendelian Randomization", "Multi-omics"],
-          email: "changtianpeng@wchscu.edu.cn",
-          interest: "Single-cell omics; Mendelian Randomization; Multi-omics",
-          hobby: "Basketball, Traveling",
-          photo: require("@/assets/people/changtianpeng.jpg")
-        },
-        {
           name: "Fang Wang",
           role: "Postdoctoral Fellow",
           tags: ["Human Genomics", "Genetic Variation", "Population Genetics"],
@@ -718,6 +709,15 @@ export default {
           interest: "Human Genomics; Population Genetics",
           hobby: "Hiking",
           photo: require("@/assets/people/wangfang.jpg")
+        },
+        {
+          name: "Tianpeng Chang",
+          role: "Postdoctoral Fellow",
+          tags: ["scRNA", "Mendelian Randomization", "Multi-omics"],
+          email: "changtianpeng@wchscu.edu.cn",
+          interest: "Single-cell omics; Mendelian Randomization; Multi-omics",
+          hobby: "Basketball, Traveling",
+          photo: require("@/assets/people/changtianpeng.jpg")
         }
       ],
 
@@ -833,13 +833,13 @@ export default {
           email: "yanyiqing@stu.scu.edu.cn",
           interest: "GWAS and multi‑omics integration to investigate the genetic architecture underlying complex diseases.",
           hobby: "Music, Table tennis",
-          photo: require("@/assets/people/yuke.jpg")
+          photo: require("@/assets/people/yanyiqing.jpg")
         }
       ],
 
       undergrad: [
         {
-          name: "UG A",
+          name: "Enlai Cai",
           role: "Undergraduate",
           tags: ["Visualization", "Web", "Figures"],
           email: "ugA@lab.org",
