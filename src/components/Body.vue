@@ -227,7 +227,9 @@ export default {
         { img: require("@/assets/research/multiSMR.png"), title: "Publication 1" },
         { img: require("@/assets/research/opera.png"), title: "Publication 2" },
         { img: require("@/assets/research/promoter.png"), title: "Publication 3" },
-        { img: require("@/assets/research/NG-yang.png"), title: "Publication 4" }
+        { img: require("@/assets/research/NG-yang.png"), title: "Publication 4" },
+        { img: require("@/assets/research/NC-lu.png"), title: "Publication 5" },
+        { img: require("@/assets/research/npj-aging-kai.png"), title: "Publication 6" },
       ],
       newsList
     };
