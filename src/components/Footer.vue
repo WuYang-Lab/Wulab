@@ -46,7 +46,7 @@
             <!-- 原有的 Recommended -->
             <li>
               <a
-                href="https://yjs.cd120.com/contents/412/6627.html"
+                href="https://yjs.cd120.com/contents/412/8015.html"
                 target="_blank"
                 rel="noopener noreferrer"
               >
