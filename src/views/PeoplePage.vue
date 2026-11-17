@@ -6,23 +6,28 @@
 
       <div class="people-container">
         <!-- 左侧导航 -->
-        <div class="year-sidebar">
+        <nav class="year-sidebar" aria-label="Sections">
           <div
             v-for="s in sections"
             :key="s.key"
             class="year-link"
             :class="{ active: activeSection === s.key }"
+            role="button"
+            tabindex="0"
+            :aria-current="activeSection === s.key ? 'true' : undefined"
             @click="scrollToSection(s.key)"
+            @keyup.enter="scrollToSection(s.key)"
           >
-            {{ s.label }}
+            <span class="year-label">{{ s.nav || s.label }}</span>
+            <span class="year-count">{{ counts[s.key] }}</span>
           </div>
-        </div>
+        </nav>
 
         <!-- 右侧正文底板 -->
         <div class="people-content-board">
 
           <!-- ===== PI ===== -->
-          <section id="sec-pi" class="section-block" data-key="pi" ref="sectionBlocks">
+          <section id="sec-pi" class="section-block" data-key="pi">
             <div class="section-head">
               <div class="section-badge">Principal Investigator</div>
             </div>
@@ -98,7 +103,7 @@
           </section>
 
           <!-- ===== Postdoc ===== -->
-          <section id="sec-postdoc" class="section-block" data-key="postdoc" ref="sectionBlocks">
+          <section id="sec-postdoc" class="section-block" data-key="postdoc">
             <div class="section-head">
               <div class="section-badge">Postdoctoral Fellow</div>
             </div>
@@ -108,7 +113,6 @@
                 class="mini-card member-card"
                 v-for="p in postdocs"
                 :key="'postdoc-' + p.name"
-                :class="{ open: openCardKey === cardKey('postdoc', p) }"
               >
                 <div class="member-photo" aria-hidden="true">
                   <div
@@ -134,9 +138,9 @@
                 </div>
 
                 <div class="member-body">
-                  <!-- name/role 居中 -->
+                  <!-- ✅ 姓名（左对齐）+ 细分隔线 -->
                   <div class="member-name">{{ p.name }}</div>
-                  <div class="member-role">{{ p.role }}</div>
+                  <span class="member-divider" aria-hidden="true"></span>
 
                   <!-- ✅ 邮箱图标 + 邮箱（整体居左） -->
                   <div class="member-lines" v-if="p.email">
@@ -150,34 +154,34 @@
                       <a class="email-link contact-text" :href="mailto(p.email)">{{ p.email }}</a>
                     </div>
                   </div>
+                  <!-- ✅ 小字补充：研究方向 / 标签 / 爱好 -->
+                  <div class="member-extra" v-if="p.interest || (p.tags && p.tags.length) || p.hobby">
+                    <div class="member-tags" v-if="p.tags && p.tags.length">
+                      <span class="member-tag" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    </div>
 
-                  <!-- ✅ 每个 tag 都有底板（单独 chip），自动换行 -->
-                  <div class="member-tags" v-if="p.tags && p.tags.length">
-                    <span class="tag-chip" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    <p
+                      class="member-interest"
+                      v-if="p.interest"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >{{ p.interest }}</p>
+
+                    <p
+                      class="member-hobby"
+                      v-if="p.hobby"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >Hobby: {{ p.hobby }}</p>
                   </div>
 
-                  <!-- details：研究方向 + 兴趣爱好 -->
-                  <div class="details-panel" v-if="openCardKey === cardKey('postdoc', p)">
-                    <div class="detail-item" v-if="p.interest">
-                      <span class="detail-label">Direction</span>
-                      <span class="detail-text">{{ p.interest }}</span>
-                    </div>
-                    <div class="detail-item" v-if="p.hobby">
-                      <span class="detail-label">Hobby</span>
-                      <span class="detail-text">{{ p.hobby }}</span>
-                    </div>
-                  </div>
-
-                  <button class="btn ghost details-btn" @click="toggleCard(cardKey('postdoc', p))">
-                    {{ openCardKey === cardKey('postdoc', p) ? "Collapse" : "Details" }}
-                  </button>
                 </div>
               </div>
             </div>
           </section>
 
           <!-- ===== Research Scientist ===== -->
-          <section id="sec-rscientist" class="section-block" data-key="rscientist" ref="sectionBlocks">
+          <section id="sec-rscientist" class="section-block" data-key="rscientist">
             <div class="section-head">
               <div class="section-badge">Research Scientist</div>
             </div>
@@ -187,7 +191,6 @@
                 class="mini-card member-card"
                 v-for="p in rscientist"
                 :key="'rscientist-' + p.name"
-                :class="{ open: openCardKey === cardKey('rscientist', p) }"
               >
                 <div class="member-photo" aria-hidden="true">
                   <div
@@ -213,8 +216,9 @@
                 </div>
 
                 <div class="member-body">
+                  <!-- ✅ 姓名（左对齐）+ 细分隔线 -->
                   <div class="member-name">{{ p.name }}</div>
-                  <div class="member-role">{{ p.role }}</div>
+                  <span class="member-divider" aria-hidden="true"></span>
 
                   <div class="member-lines" v-if="p.email">
                     <div class="contact-row">
@@ -227,32 +231,34 @@
                       <a class="email-link contact-text" :href="mailto(p.email)">{{ p.email }}</a>
                     </div>
                   </div>
+                  <!-- ✅ 小字补充：研究方向 / 标签 / 爱好 -->
+                  <div class="member-extra" v-if="p.interest || (p.tags && p.tags.length) || p.hobby">
+                    <div class="member-tags" v-if="p.tags && p.tags.length">
+                      <span class="member-tag" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    </div>
 
-                  <div class="member-tags" v-if="p.tags && p.tags.length">
-                    <span class="tag-chip" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    <p
+                      class="member-interest"
+                      v-if="p.interest"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >{{ p.interest }}</p>
+
+                    <p
+                      class="member-hobby"
+                      v-if="p.hobby"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >Hobby: {{ p.hobby }}</p>
                   </div>
 
-                  <div class="details-panel" v-if="openCardKey === cardKey('rscientist', p)">
-                    <div class="detail-item" v-if="p.interest">
-                      <span class="detail-label">Direction</span>
-                      <span class="detail-text">{{ p.interest }}</span>
-                    </div>
-                    <div class="detail-item" v-if="p.hobby">
-                      <span class="detail-label">Hobby</span>
-                      <span class="detail-text">{{ p.hobby }}</span>
-                    </div>
-                  </div>
-
-                  <button class="btn ghost details-btn" @click="toggleCard(cardKey('rscientist', p))">
-                    {{ openCardKey === cardKey('rscientist', p) ? "Collapse" : "Details" }}
-                  </button>
                 </div>
               </div>
             </div>
           </section>
 
           <!-- ===== Research Assistant ===== -->
-          <section id="sec-rassistant" class="section-block" data-key="rassistant" ref="sectionBlocks">
+          <section id="sec-rassistant" class="section-block" data-key="rassistant">
             <div class="section-head">
               <div class="section-badge">Research Assistant</div>
             </div>
@@ -262,7 +268,6 @@
                 class="mini-card member-card"
                 v-for="p in rassistant"
                 :key="'rassistant-' + p.name"
-                :class="{ open: openCardKey === cardKey('rassistant', p) }"
               >
                 <div class="member-photo" aria-hidden="true">
                   <div
@@ -288,8 +293,9 @@
                 </div>
 
                 <div class="member-body">
+                  <!-- ✅ 姓名（左对齐）+ 细分隔线 -->
                   <div class="member-name">{{ p.name }}</div>
-                  <div class="member-role">{{ p.role }}</div>
+                  <span class="member-divider" aria-hidden="true"></span>
 
                   <div class="member-lines" v-if="p.email">
                     <div class="contact-row">
@@ -302,32 +308,34 @@
                       <a class="email-link contact-text" :href="mailto(p.email)">{{ p.email }}</a>
                     </div>
                   </div>
+                  <!-- ✅ 小字补充：研究方向 / 标签 / 爱好 -->
+                  <div class="member-extra" v-if="p.interest || (p.tags && p.tags.length) || p.hobby">
+                    <div class="member-tags" v-if="p.tags && p.tags.length">
+                      <span class="member-tag" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    </div>
 
-                  <div class="member-tags" v-if="p.tags && p.tags.length">
-                    <span class="tag-chip" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    <p
+                      class="member-interest"
+                      v-if="p.interest"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >{{ p.interest }}</p>
+
+                    <p
+                      class="member-hobby"
+                      v-if="p.hobby"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >Hobby: {{ p.hobby }}</p>
                   </div>
 
-                  <div class="details-panel" v-if="openCardKey === cardKey('rassistant', p)">
-                    <div class="detail-item" v-if="p.interest">
-                      <span class="detail-label">Direction</span>
-                      <span class="detail-text">{{ p.interest }}</span>
-                    </div>
-                    <div class="detail-item" v-if="p.hobby">
-                      <span class="detail-label">Hobby</span>
-                      <span class="detail-text">{{ p.hobby }}</span>
-                    </div>
-                  </div>
-
-                  <button class="btn ghost details-btn" @click="toggleCard(cardKey('rassistant', p))">
-                    {{ openCardKey === cardKey('rassistant', p) ? "Collapse" : "Details" }}
-                  </button>
                 </div>
               </div>
             </div>
           </section>
 
           <!-- ===== PhD ===== -->
-          <section id="sec-phd" class="section-block" data-key="phd" ref="sectionBlocks">
+          <section id="sec-phd" class="section-block" data-key="phd">
             <div class="section-head">
               <div class="section-badge">PhD Student</div>
             </div>
@@ -337,7 +345,6 @@
                 class="mini-card member-card"
                 v-for="p in phd"
                 :key="'phd-' + p.name"
-                :class="{ open: openCardKey === cardKey('phd', p) }"
               >
                 <div class="member-photo" aria-hidden="true">
                   <div
@@ -363,8 +370,9 @@
                 </div>
 
                 <div class="member-body">
+                  <!-- ✅ 姓名（左对齐）+ 细分隔线 -->
                   <div class="member-name">{{ p.name }}</div>
-                  <div class="member-role">{{ p.role }}</div>
+                  <span class="member-divider" aria-hidden="true"></span>
 
                   <div class="member-lines" v-if="p.email">
                     <div class="contact-row">
@@ -377,32 +385,34 @@
                       <a class="email-link contact-text" :href="mailto(p.email)">{{ p.email }}</a>
                     </div>
                   </div>
+                  <!-- ✅ 小字补充：研究方向 / 标签 / 爱好 -->
+                  <div class="member-extra" v-if="p.interest || (p.tags && p.tags.length) || p.hobby">
+                    <div class="member-tags" v-if="p.tags && p.tags.length">
+                      <span class="member-tag" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    </div>
 
-                  <div class="member-tags" v-if="p.tags && p.tags.length">
-                    <span class="tag-chip" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    <p
+                      class="member-interest"
+                      v-if="p.interest"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >{{ p.interest }}</p>
+
+                    <p
+                      class="member-hobby"
+                      v-if="p.hobby"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >Hobby: {{ p.hobby }}</p>
                   </div>
 
-                  <div class="details-panel" v-if="openCardKey === cardKey('phd', p)">
-                    <div class="detail-item" v-if="p.interest">
-                      <span class="detail-label">Direction</span>
-                      <span class="detail-text">{{ p.interest }}</span>
-                    </div>
-                    <div class="detail-item" v-if="p.hobby">
-                      <span class="detail-label">Hobby</span>
-                      <span class="detail-text">{{ p.hobby }}</span>
-                    </div>
-                  </div>
-
-                  <button class="btn ghost details-btn" @click="toggleCard(cardKey('phd', p))">
-                    {{ openCardKey === cardKey('phd', p) ? "Collapse" : "Details" }}
-                  </button>
                 </div>
               </div>
             </div>
           </section>
 
           <!-- ===== Master ===== -->
-          <section id="sec-master" class="section-block" data-key="master" ref="sectionBlocks">
+          <section id="sec-master" class="section-block" data-key="master">
             <div class="section-head">
               <div class="section-badge">Master Student</div>
             </div>
@@ -412,7 +422,6 @@
                 class="mini-card member-card"
                 v-for="p in master"
                 :key="'master-' + p.name"
-                :class="{ open: openCardKey === cardKey('master', p) }"
               >
                 <div class="member-photo" aria-hidden="true">
                   <div
@@ -438,8 +447,9 @@
                 </div>
 
                 <div class="member-body">
+                  <!-- ✅ 姓名（左对齐）+ 细分隔线 -->
                   <div class="member-name">{{ p.name }}</div>
-                  <div class="member-role">{{ p.role }}</div>
+                  <span class="member-divider" aria-hidden="true"></span>
 
                   <div class="member-lines" v-if="p.email">
                     <div class="contact-row">
@@ -452,32 +462,34 @@
                       <a class="email-link contact-text" :href="mailto(p.email)">{{ p.email }}</a>
                     </div>
                   </div>
+                  <!-- ✅ 小字补充：研究方向 / 标签 / 爱好 -->
+                  <div class="member-extra" v-if="p.interest || (p.tags && p.tags.length) || p.hobby">
+                    <div class="member-tags" v-if="p.tags && p.tags.length">
+                      <span class="member-tag" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    </div>
 
-                  <div class="member-tags" v-if="p.tags && p.tags.length">
-                    <span class="tag-chip" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    <p
+                      class="member-interest"
+                      v-if="p.interest"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >{{ p.interest }}</p>
+
+                    <p
+                      class="member-hobby"
+                      v-if="p.hobby"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >Hobby: {{ p.hobby }}</p>
                   </div>
 
-                  <div class="details-panel" v-if="openCardKey === cardKey('master', p)">
-                    <div class="detail-item" v-if="p.interest">
-                      <span class="detail-label">Direction</span>
-                      <span class="detail-text">{{ p.interest }}</span>
-                    </div>
-                    <div class="detail-item" v-if="p.hobby">
-                      <span class="detail-label">Hobby</span>
-                      <span class="detail-text">{{ p.hobby }}</span>
-                    </div>
-                  </div>
-
-                  <button class="btn ghost details-btn" @click="toggleCard(cardKey('master', p))">
-                    {{ openCardKey === cardKey('master', p) ? "Collapse" : "Details" }}
-                  </button>
                 </div>
               </div>
             </div>
           </section>
 
           <!-- ===== Undergraduate ===== -->
-          <section id="sec-undergrad" class="section-block" data-key="undergrad" ref="sectionBlocks">
+          <section id="sec-undergrad" class="section-block" data-key="undergrad">
             <div class="section-head">
               <div class="section-badge">Undergraduate</div>
             </div>
@@ -487,7 +499,6 @@
                 class="mini-card member-card"
                 v-for="p in undergrad"
                 :key="'ug-' + p.name"
-                :class="{ open: openCardKey === cardKey('undergrad', p) }"
               >
                 <div class="member-photo" aria-hidden="true">
                   <div
@@ -513,8 +524,9 @@
                 </div>
 
                 <div class="member-body">
+                  <!-- ✅ 姓名（左对齐）+ 细分隔线 -->
                   <div class="member-name">{{ p.name }}</div>
-                  <div class="member-role">{{ p.role }}</div>
+                  <span class="member-divider" aria-hidden="true"></span>
 
                   <div class="member-lines" v-if="p.email">
                     <div class="contact-row">
@@ -527,32 +539,34 @@
                       <a class="email-link contact-text" :href="mailto(p.email)">{{ p.email }}</a>
                     </div>
                   </div>
+                  <!-- ✅ 小字补充：研究方向 / 标签 / 爱好 -->
+                  <div class="member-extra" v-if="p.interest || (p.tags && p.tags.length) || p.hobby">
+                    <div class="member-tags" v-if="p.tags && p.tags.length">
+                      <span class="member-tag" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    </div>
 
-                  <div class="member-tags" v-if="p.tags && p.tags.length">
-                    <span class="tag-chip" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    <p
+                      class="member-interest"
+                      v-if="p.interest"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >{{ p.interest }}</p>
+
+                    <p
+                      class="member-hobby"
+                      v-if="p.hobby"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >Hobby: {{ p.hobby }}</p>
                   </div>
 
-                  <div class="details-panel" v-if="openCardKey === cardKey('undergrad', p)">
-                    <div class="detail-item" v-if="p.interest">
-                      <span class="detail-label">Direction</span>
-                      <span class="detail-text">{{ p.interest }}</span>
-                    </div>
-                    <div class="detail-item" v-if="p.hobby">
-                      <span class="detail-label">Hobby</span>
-                      <span class="detail-text">{{ p.hobby }}</span>
-                    </div>
-                  </div>
-
-                  <button class="btn ghost details-btn" @click="toggleCard(cardKey('undergrad', p))">
-                    {{ openCardKey === cardKey('undergrad', p) ? "Collapse" : "Details" }}
-                  </button>
                 </div>
               </div>
             </div>
           </section>
 
           <!-- ===== Visiting ===== -->
-          <section id="sec-visiting" class="section-block" data-key="visiting" ref="sectionBlocks">
+          <section id="sec-visiting" class="section-block" data-key="visiting">
             <div class="section-head">
               <div class="section-badge">Visiting</div>
             </div>
@@ -562,7 +576,6 @@
                 class="mini-card member-card"
                 v-for="p in visiting"
                 :key="'visiting-' + p.name"
-                :class="{ open: openCardKey === cardKey('visiting', p) }"
               >
                 <div class="member-photo" aria-hidden="true">
                   <div
@@ -588,8 +601,9 @@
                 </div>
 
                 <div class="member-body">
+                  <!-- ✅ 姓名（左对齐）+ 细分隔线 -->
                   <div class="member-name">{{ p.name }}</div>
-                  <div class="member-role">{{ p.role }}</div>
+                  <span class="member-divider" aria-hidden="true"></span>
 
                   <div class="member-lines" v-if="p.email">
                     <div class="contact-row">
@@ -602,32 +616,34 @@
                       <a class="email-link contact-text" :href="mailto(p.email)">{{ p.email }}</a>
                     </div>
                   </div>
+                  <!-- ✅ 小字补充：研究方向 / 标签 / 爱好 -->
+                  <div class="member-extra" v-if="p.interest || (p.tags && p.tags.length) || p.hobby">
+                    <div class="member-tags" v-if="p.tags && p.tags.length">
+                      <span class="member-tag" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    </div>
 
-                  <div class="member-tags" v-if="p.tags && p.tags.length">
-                    <span class="tag-chip" v-for="t in p.tags" :key="t">{{ t }}</span>
+                    <p
+                      class="member-interest"
+                      v-if="p.interest"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >{{ p.interest }}</p>
+
+                    <p
+                      class="member-hobby"
+                      v-if="p.hobby"
+                      title="Click for full details"
+                      @click="openDetail(p)"
+                    >Hobby: {{ p.hobby }}</p>
                   </div>
 
-                  <div class="details-panel" v-if="openCardKey === cardKey('visiting', p)">
-                    <div class="detail-item" v-if="p.interest">
-                      <span class="detail-label">Direction</span>
-                      <span class="detail-text">{{ p.interest }}</span>
-                    </div>
-                    <div class="detail-item" v-if="p.hobby">
-                      <span class="detail-label">Hobby</span>
-                      <span class="detail-text">{{ p.hobby }}</span>
-                    </div>
-                  </div>
-
-                  <button class="btn ghost details-btn" @click="toggleCard(cardKey('visiting', p))">
-                    {{ openCardKey === cardKey('visiting', p) ? "Collapse" : "Details" }}
-                  </button>
                 </div>
               </div>
             </div>
           </section>
 
           <!-- ===== Alumni ===== -->
-          <section id="sec-alumni" class="section-block" data-key="alumni" ref="sectionBlocks">
+          <section id="sec-alumni" class="section-block" data-key="alumni">
             <div class="section-head">
               <div class="section-badge">Alumni</div>
             </div>
@@ -653,6 +669,28 @@
           <img :src="lightbox.src" :alt="lightbox.alt" class="lightbox-img" />
         </div>
       </div>
+      <!-- ✅ 研究方向详情：点击小字展开查看全文 -->
+      <div v-if="detail.open" class="detail-modal" @click="closeDetail">
+        <div class="detail-panel" @click.stop>
+          <button class="lightbox-close detail-close" @click="closeDetail" aria-label="Close">✕</button>
+
+          <div class="detail-media" v-if="detail.person.photo">
+            <img :src="detail.person.photo" :alt="detail.person.name" class="detail-photo" />
+          </div>
+
+          <div class="detail-info">
+            <div class="detail-name">{{ detail.person.name }}</div>
+            <div class="detail-role" v-if="detail.person.role">{{ detail.person.role }}</div>
+
+            <div class="detail-tag-row" v-if="detail.person.tags && detail.person.tags.length">
+              <span class="member-tag" v-for="t in detail.person.tags" :key="t">{{ t }}</span>
+            </div>
+
+            <p class="detail-body" v-if="detail.person.interest">{{ detail.person.interest }}</p>
+            <p class="detail-hobby" v-if="detail.person.hobby">Hobby: {{ detail.person.hobby }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -665,7 +703,6 @@ export default {
       activeSection: "pi",
       observer: null,
       scrollOffset: 90,
-      openCardKey: null,
 
       // ✅ 图片放大预览
       lightbox: {
@@ -674,16 +711,22 @@ export default {
         alt: ""
       },
 
+      /* ✅ 研究方向详情弹层 */
+      detail: {
+        open: false,
+        person: null
+      },
+
       sections: [
-        { key: "pi", label: "Principal Investigator" },
-        { key: "postdoc", label: "Postdoctoral Fellow" },
-        { key: "rscientist", label: "Research Scientist" },
-        { key: "rassistant", label: "Research Assistant" },
-        { key: "phd", label: "PhD Student" },
-        { key: "master", label: "Master Student" },
-        { key: "undergrad", label: "Undergraduate" },
-        { key: "visiting", label: "Visiting" },
-        { key: "alumni", label: "Alumni" }
+        { key: "pi", label: "Principal Investigator", nav: "PI" },
+        { key: "postdoc", label: "Postdoctoral Fellow", nav: "Postdoc" },
+        { key: "rscientist", label: "Research Scientist", nav: "Scientist" },
+        { key: "rassistant", label: "Research Assistant", nav: "Assistant" },
+        { key: "phd", label: "PhD Student", nav: "PhD" },
+        { key: "master", label: "Master Student", nav: "Master" },
+        { key: "undergrad", label: "Undergraduate", nav: "Undergrad" },
+        { key: "visiting", label: "Visiting", nav: "Visiting" },
+        { key: "alumni", label: "Alumni", nav: "Alumni" }
       ],
 
       pi: {
@@ -746,11 +789,11 @@ export default {
           photo: require("@/assets/people/gaikai.jpg")
         },
         {
-          name: "Haibing He",
+          name: "Haibin He",
           role: "Research Assistant",
           tags: ["scRNA Multi-omics", "Precision Medicine", "GWAS"],
           email: "hehb@wchscu.cn",
-          interest: "Integrating population genetics and single-cell multi-omics to interpret genetic variants, identify disease-relevant cell types, and develop computational methods for precision medicine.s",
+          interest: "Integrating population genetics and single-cell multi-omics to interpret genetic variants, identify disease-relevant cell types, and develop computational methods for precision medicine.",
           hobby: "Play",
           photo: require("@/assets/people/hehaibing.jpg")
         },
@@ -787,7 +830,7 @@ export default {
           photo: require("@/assets/people/shilulu.jpg")
         },
         {
-          name: "Hongceng Jiang",
+          name: "Hongcen Jiang",
           role: "PhD Student",
           tags: ["scRNA", "Genetic Susceptibility", "Cell-type-specific Mechanisms"],
           email: "jianghongcen9@stu.scu.edu.cn",
@@ -798,7 +841,7 @@ export default {
         {
           name: "Wenfeng Yi",
           role: "PhD Student",
-          tags: ["Multi-omics ", "GWAS", "Method Development"],
+          tags: ["Multi-omics", "GWAS", "Method Development"],
           email: "yiwenfeng@stu.scu.edu.cn",
           interest: "Method development for multi-ancestry GWAS analysis, multi-omics data analysis",
           hobby: "Gaming, Cycling, Walking",
@@ -831,7 +874,7 @@ export default {
           role: "Master Student",
           tags: ["GWAS Meta-analysis", "Complex Traits", "Multi-omics"],
           email: "yanyiqing@stu.scu.edu.cn",
-          interest: "GWAS and multi‑omics integration to investigate the genetic architecture underlying complex diseases.",
+          interest: "GWAS and multi-omics integration to investigate the genetic architecture underlying complex diseases.",
           hobby: "Music, Table tennis",
           photo: require("@/assets/people/yanyiqing.jpg")
         }
@@ -872,7 +915,7 @@ export default {
           name: "Hanbing Wang",
           role: "PhD Student, WCH of SCU",
           tags: ["Chronic Pain", "Multi-omics", "Integrative Genomics"],
-          email: "hanbingwang0724@163.con",
+          email: "hanbingwang0724@163.com",
           interest: "Multi-omics analysis of chronic pain",
           hobby: "Cooking, handicrafts, Rubik’s cube",
           photo: require("@/assets/people/wanghanbing.jpg")
@@ -900,11 +943,29 @@ export default {
     this.activeSection = this.sections[0].key;
     this.initObserver();
     window.addEventListener("keydown", this.onKeydown);
+    window.addEventListener("scroll", this.onScroll, { passive: true });
   },
 
   beforeUnmount() {
     if (this.observer) this.observer.disconnect();
     window.removeEventListener("keydown", this.onKeydown);
+    window.removeEventListener("scroll", this.onScroll);
+  },
+
+  computed: {
+    counts() {
+      return {
+        pi: 1,
+        postdoc: this.postdocs.length,
+        rscientist: this.rscientist.length,
+        rassistant: this.rassistant.length,
+        phd: this.phd.length,
+        master: this.master.length,
+        undergrad: this.undergrad.length,
+        visiting: this.visiting.length,
+        alumni: this.alumni.length
+      };
+    }
   },
 
   methods: {
@@ -912,13 +973,7 @@ export default {
       const e = (email || "").toString().trim();
       return e ? `mailto:${e}` : "#";
     },
-    cardKey(group, p) {
-      return `${group}:${p.name}`;
-    },
-
-    toggleCard(key) {
-      this.openCardKey = this.openCardKey === key ? null : key;
-    },
+    /* 取研究方向第一句（卡片一句话简介） */
 
     openImage(src, alt) {
       this.lightbox.open = true;
@@ -935,7 +990,16 @@ export default {
     },
 
     onKeydown(e) {
-      if (e.key === "Escape" && this.lightbox.open) this.closeImage();
+      if (e.key !== "Escape") return;
+      if (this.lightbox.open) this.closeImage();
+      else if (this.detail.open) this.closeDetail();
+    },
+
+    onScroll() {
+      const doc = document.documentElement;
+      if (window.innerHeight + window.pageYOffset >= doc.scrollHeight - 8) {
+        this.activeSection = this.sections[this.sections.length - 1].key;
+      }
     },
 
     scrollToSection(key) {
@@ -943,18 +1007,51 @@ export default {
       if (!el) return;
 
       this.activeSection = key;
+      this.scrollActiveChip();
 
-      const top = el.getBoundingClientRect().top + window.pageYOffset - this.scrollOffset;
-      window.scrollTo({ top, behavior: "smooth" });
+      const isMobile = window.innerWidth <= 768;
+      const offset = isMobile ? 152 : this.scrollOffset;
+      const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
+    },
+
+    /* ✅ 研究方向详情弹层 */
+    openDetail(p) {
+      if (!p) return;
+      this.detail.open = true;
+      this.detail.person = p;
+      document.body.style.overflow = "hidden";
+    },
+
+    closeDetail() {
+      this.detail.open = false;
+      this.detail.person = null;
+      document.body.style.overflow = "";
+    },
+
+    /* ✅ 移动端：把当前 chip 滚到可视区中间 */
+    scrollActiveChip() {      if (window.innerWidth > 768 || !this.$el || !this.$el.querySelector) return;
+      const bar = this.$el.querySelector(".year-sidebar");
+      const chip = bar && bar.querySelector(".year-link.active");
+      if (!bar || !chip) return;
+
+      const target = chip.offsetLeft - (bar.clientWidth - chip.offsetWidth) / 2;
+      if (Math.abs(bar.scrollLeft - target) < 4) return;
+      bar.scrollTo({ left: Math.max(target, 0), behavior: "smooth" });
     },
 
     initObserver() {
+      if (typeof IntersectionObserver === "undefined") return;
+
       this.observer = new IntersectionObserver(
         entries => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
               const key = entry.target.dataset.key;
-              if (key) this.activeSection = key;
+              if (key && key !== this.activeSection) {
+                this.activeSection = key;
+                this.scrollActiveChip();
+              }
             }
           });
         },
@@ -962,12 +1059,9 @@ export default {
       );
 
       this.$nextTick(() => {
-        const raw = this.$refs.sectionBlocks;
-        const blocks = Array.isArray(raw) ? raw : raw ? [raw] : [];
-        blocks.forEach(sec => {
-          const el = sec && sec.$el ? sec.$el : sec;
-          if (el instanceof HTMLElement) this.observer.observe(el);
-        });
+        const root = this.$el;
+        if (!root || !root.querySelectorAll) return;
+        root.querySelectorAll(".section-block[data-key]").forEach(el => this.observer.observe(el));
       });
     }
   }
@@ -1005,39 +1099,98 @@ export default {
   text-align: left;
 }
 
-/* ✅ 左侧导航栏左对齐（与 publications 一致） */
+/* ✅ 左侧导航栏：吸顶 + 人数 + 当前项竖条 */
 .year-sidebar {
-  width: 70px;
-  margin-right: 20px;
+  width: 142px;
+  margin-right: 22px;
   margin-left: -20px;   /* ✅ 往左移：-10/-20/-30 自己调 */
   position: sticky;
 
-  /* ✅ 放到左侧“中上”位置：从 header 下方开始固定偏移 */
-  top: 22%;            /* 你想更靠下就 160/180 */
-  transform: none;       /* ✅ 去掉居中偏移 */
+  /* ✅ 吸顶：紧贴固定 header（72px）下方 */
+  top: 100px;
 
   align-self: flex-start;
   text-align: left;
+  padding: 2px 0;
+  z-index: 5;
 }
-
 
 .year-link {
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  font-size: 14px;
   font-weight: 600;
-  color: #9aa4af;
+  color: #8b97a5;
   cursor: pointer;
-  margin-bottom: 12px;
-  transition: color 0.15s ease;
+  padding: 8px 9px 8px 13px;
+  border-radius: 10px;
+  margin-bottom: 2px;
+  transition: color 0.15s ease, background 0.15s ease;
   white-space: nowrap;
   text-align: left;
+  user-select: none;
 }
 
-.year-link.active {
-  color: #004680;
+/* 当前项左侧竖条 */
+.year-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 0;
+  transform: translateY(-50%);
+  border-radius: 3px;
+  background: #2f5d8a;
+  transition: height 0.18s ease;
+}
+
+.year-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.year-count {
+  margin-left: auto;
+  flex: 0 0 auto;
+  min-width: 20px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(47, 93, 138, 0.06);
+  color: #93a1b1;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .year-link:hover {
-  text-decoration: underline;
+  color: #2f5d8a;
+  background: rgba(47, 93, 138, 0.06);
+}
+
+.year-link.active {
+  color: #2f5d8a;
+  background: #eef4fb;
+  font-weight: 800;
+}
+
+.year-link.active::before {
+  height: 18px;
+}
+
+.year-link.active .year-count {
+  color: #2f5d8a;
+  background: rgba(47, 93, 138, 0.14);
+}
+
+.year-link:focus-visible {
+  outline: 2px solid rgba(47, 93, 138, 0.45);
+  outline-offset: 2px;
 }
 
 /* 右侧底板 */
@@ -1099,8 +1252,10 @@ export default {
   grid-template-columns: 1fr;
 }
 .people-grid.three {
-  grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
+  /* ✅ 一行 3 列，正好铺满内容区 */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px;
+  grid-auto-rows: 1fr;   /* ✅ 同组卡片等高 */
 }
 
 /* ===== PI ===== */
@@ -1126,7 +1281,7 @@ export default {
 /* PI 二寸照比例（保持 0.75） */
 .pi-photo {
   flex: 0 0 auto;
-  --piH: 240px;
+  --piH: 290px;
   height: var(--piH);
   width: calc(var(--piH) * 0.75);
   border-radius: 14px;
@@ -1333,6 +1488,7 @@ export default {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: 100%;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .member-card:hover {
@@ -1342,18 +1498,19 @@ export default {
 
 .member-photo {
   width: 100%;
-  padding: 14px 0 10px 0;
+  padding: 14px 0 6px 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
 }
 
 .photo-oval {
-  --w: 120px;
-  --h: 150px;
-  width: var(--w);
-  height: var(--h);
-  border-radius: 18px;
+  /* ✅ 照片随卡片宽度等比放大（4:5），最多 240px 宽 */
+  width: min(212px, calc(100% - 24px));
+  aspect-ratio: 4 / 5;
+  height: auto;
+  border-radius: 20px;
   overflow: hidden;
   background: #fff;
   border: 1px solid var(--border);
@@ -1409,97 +1566,143 @@ export default {
 .b { stroke: var(--blue); stroke-width: 3.2; stroke-linecap: round; }
 
 .member-body {
-  padding: 14px 16px 16px 16px;
+  padding: 16px 18px 18px 18px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
+  text-align: left;
+  flex: 1 1 auto;   /* ✅ 撑满卡片剩余高度 */
+}
+
+/* ✅ 姓名：左对齐、字号加大 */
+.member-name {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
   text-align: left;
 }
 
-/* name/role 居中 */
-.member-name {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--accent);
-  line-height: 1.2;
-  text-align: center;
-}
-.member-role {
-  font-size: 13px;
-  color: #666;
-  font-weight: 600;
-  margin-top: -6px;
-  text-align: center;
+/* ✅ 姓名下的短分隔线 */
+.member-divider {
+  display: block;
+  width: 56px;
+  height: 1px;
+  background: #dde7f2;
+  margin: 1px 0 1px;
 }
 
 /* ✅ 邮箱块：左对齐 */
 .member-lines {
   width: 100%;
   display: block;
-}
-
-/* ✅ 每个 tag 自带底板（单独 chip），自动换行不溢出 */
-.member-tags {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
   margin-top: 2px;
 }
-
-.tag-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: #fff;
-  color: #555;
-  line-height: 1;
-  box-shadow: 0 2px 8px rgba(15, 60, 120, 0.06);
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.member-lines .contact-row {
+  gap: 9px;
+  justify-content: flex-start;
+  align-items: center;   /* ✅ 邮箱换成两行时，图标垂直居中 */
 }
-
-/* details */
-.details-panel {
-  margin-top: 6px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
+.member-lines .contact-icon,
+.member-lines .icon-sm {
+  width: 17px;
+  height: 17px;
 }
-
-/* ✅ details：一行显示 label + 描述 */
-.detail-item {
-  text-align: left;
-  line-height: 1.6;
+.member-lines .icon-sm {
+  stroke: #aebbc9;
+  stroke-width: 1.6;
 }
-.detail-label {
-  font-size: 12px;
-  font-weight: 800;
-  color: #888;
-  margin-right: 8px;
-  white-space: nowrap;
-}
-.detail-text {
-  font-size: 14px;
-  color: #444;
-  font-weight: 600;
+.member-lines .email-link {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #8b97a5;
+  text-decoration: none;
   word-break: break-word;
   overflow-wrap: anywhere;
 }
-.detail-item + .detail-item {
-  margin-top: 12px;
+.member-lines .email-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(47, 93, 138, 0.45);
+  text-underline-offset: 3px;
 }
 
-.details-btn {
-  width: fit-content;
-  align-self: flex-start;
-  margin-top: 6px;
+/* ✅ 小字补充：研究方向 / 标签 / 爱好 */
+.member-extra {
+  flex: 1 1 auto;   /* ✅ 吸收高度差，保证 hobby 底部对齐 */
+  margin-top: 3px;
+  padding-top: 9px;
+  border-top: 1px dashed rgba(47, 93, 138, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.member-interest {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #7f8c9b;
+  text-align: left;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  /* ✅ 超过 2 行用 … 截断，点击看全文 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.member-interest:hover {
+  color: var(--accent);
+}
+
+.member-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;   /* ✅ 标签向两端分布 */
+  gap: 5px;
+  margin-top: 1px;
+}
+
+.member-tag {
+  flex: 1 1 auto;   /* ✅ 两个标签时向两端撑满，单个时占满整行居中 */
+  max-width: 100%;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid #e6eef8;
+  background: #f5f9fe;
+  color: #7d8b9b;
+  font-size: 10.5px;
+  line-height: 1.6;
+  text-align: center;
+  white-space: normal;
+}
+
+.member-hobby {
+  margin: auto 0 0;   /* ✅ 撑到卡片底部，保持同行对齐 */
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #9aa6b3;
+  text-align: left;
+  word-break: break-word;
+  /* ✅ 只显示一行，超出用 … 截断，点击看全文 */
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.member-hobby:hover {
+  color: var(--accent);
 }
 
 /* alumni */
@@ -1537,6 +1740,103 @@ export default {
   font-weight: 600;
 }
 
+
+/* ✅ 研究方向详情弹层 */
+.detail-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3200;
+  padding: 20px;
+  background: rgba(11, 34, 58, 0.42);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-panel {
+  position: relative;
+  width: min(720px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(15, 60, 120, 0.22);
+}
+
+/* ✅ 详情里的照片：比卡片里更大 */
+.detail-media {
+  flex: 0 0 auto;
+}
+
+.detail-photo {
+  display: block;
+  width: 230px;
+  aspect-ratio: 4 / 5;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.detail-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.detail-close {
+  top: 12px;
+  right: 12px;
+}
+
+.detail-name {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+}
+
+.detail-role {
+  margin-top: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #8c98a6;
+}
+
+.detail-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 14px;
+}
+
+/* 弹层里的标签保持自然宽度 */
+.detail-tag-row .member-tag {
+  flex: 0 0 auto;
+}
+
+.detail-body {
+  margin: 14px 0 0;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: #5b6b7c;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.detail-hobby {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #9aa6b3;
+}
 
 /* ✅ Lightbox */
 .lightbox {
@@ -1580,21 +1880,105 @@ export default {
 }
 
 /* responsive */
+@media (max-width: 1240px) {
+  /* 窄屏时不再负边距，避免导航贴死屏幕边缘 */
+  .year-sidebar {
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 1024px) {
   .people-grid.three {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
   }
 }
 
 @media (max-width: 768px) {
+  /* ✅ 移动端：左侧导航变成吸顶横向 chips */
+  .people-shell {
+    box-sizing: border-box;
+  }
+
+  .people-container {
+    flex-direction: column;
+  }
+
   .year-sidebar {
+    display: flex;
+    gap: 8px;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    align-self: stretch;
+    margin: 0 -20px 14px;
+    padding: 10px 20px;
+    position: sticky;
+    top: 72px;
+    z-index: 40;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e8eef7;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .year-sidebar::-webkit-scrollbar {
     display: none;
   }
+
+  .year-link {
+    flex: 0 0 auto;
+    margin-bottom: 0;
+    padding: 7px 12px;
+    border: 1px solid #e3ebf5;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 13.5px;
+    color: #6f7c8c;
+    box-shadow: 0 2px 6px rgba(15, 60, 120, 0.05);
+  }
+  .year-link::before {
+    display: none;
+  }
+  .year-link.active {
+    background: #2f5d8a;
+    border-color: #2f5d8a;
+    color: #fff;
+    font-weight: 700;
+  }
+  .year-link.active .year-count {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+  }
+
   .people-content-board {
     padding: 22px 18px;
+    min-width: 0;
+    width: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* ✅ 详情弹层在手机上改为上下排布 */
+  .detail-panel {
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+  .detail-media {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .detail-photo {
+    width: 62%;
   }
   .people-grid.three {
     grid-template-columns: 1fr;
+    grid-auto-rows: auto;   /* 单列时不再强行等高 */
   }
 
   .pi-card {
@@ -1603,7 +1987,7 @@ export default {
   }
   .pi-photo {
     order: -1;
-    --piH: 260px;
+    --piH: 300px;
     height: var(--piH);
     width: calc(var(--piH) * 0.66);
   }

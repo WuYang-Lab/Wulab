@@ -3,6 +3,7 @@
   <div class="home-body">
     <!-- ✅ Hero 顶图：多图轮播 + 跟下面三列 news 同版心宽度 -->
     <section
+      ref="heroEl"
       class="hero"
       @mouseenter="pauseHero = true"
       @mouseleave="pauseHero = false"
@@ -10,11 +11,12 @@
       <div class="hero-inner">
         <div class="hero-slider">
           <img
-            v-for="(src, idx) in heroImages"
+            v-for="(slide, idx) in heroImages"
             :key="idx"
             class="hero-bg"
             :class="{ active: idx === heroIndex }"
-            :src="src"
+            :src="slide.src"
+            :style="{ '--zoom': slide.zoom || 1 }"
             alt=""
           />
 
@@ -53,26 +55,29 @@
           />
         </div>
       </div>
+
+    </section>
+
+    <!-- ✅ 声明条（dock）：通栏浅蓝灰底板 + 顶部一条主色细线，把大图和正文分开
+         放置参考：yanglab 的 hero 下方 accent 细线 + Broad / CZ Biohub 的 mission statement 色带 -->
+    <section class="hero-statement">
+      <p class="hero-blurb">
+        We are a research group dedicated to developing
+        <span class="hero-key">novel statistical methods</span> and
+        <span class="hero-key">multi-omics</span> resources to advanced our understanding of
+        <span class="hero-key">disease susceptibility</span> and
+        <span class="hero-key">population health</span>.
+      </p>
+
+      <div class="hero-actions hero-actions-bottom">
+        <router-link class="btn ghost" to="/people">Meet the Team</router-link>
+        <router-link class="btn primary" to="/research">Research Direction</router-link>
+        <router-link class="btn ghost" to="/contact">Join our Team</router-link>
+      </div>
     </section>
 
     <section class="wrap">
       <div class="stack">
-        <!-- ✅ 文案底板：放在 PUBLICATION 正上方，与上图轻微重叠 -->
-        <div class="hero-blurb-wrap">
-          <div class="hero-blurb">
-            We are a research group dedicated to developing <span class="hero-key"> novel statistical methods</span> and
-            <span class="hero-key">multi-omics</span> resources to advanced our understanding of
-            <span class="hero-key">disease susceptibility</span> and
-            <span class="hero-key">population health</span>.
-          </div>
-
-          <div class="hero-actions hero-actions-bottom">
-            <router-link class="btn ghost" to="/people">Meet the Team</router-link>
-            <router-link class="btn primary" to="/research">Research Direction</router-link>
-            <router-link class="btn ghost" to="/contact">Join our Team</router-link>
-          </div>
-        </div>
-
         <!-- PUBLICATION：图片连播 -->
         <div class="section-plain news-plain">
           <div class="section-head center">
@@ -94,7 +99,12 @@
                 :aria-label="s.title || 'Open image'"
               >
                 <!-- ✅ clickable-img：与 NewsPage 一致 -->
-                <img class="marquee-img clickable-img" :src="s.img" :alt="s.title" />
+                <img
+                  class="marquee-img clickable-img"
+                  :src="s.img"
+                  :alt="s.title"
+                  @load="autoFit"
+                />
               </button>
             </div>
           </div>
@@ -122,7 +132,7 @@
 
                 <!-- 图片 -->
                 <div class="news-image" v-if="n.image">
-                  <img :src="n.image" :alt="n.title" @load="onMediaLoad" />
+                  <img :src="n.image" :alt="n.title" @load="onMediaLoad(); autoFit($event)" />
                 </div>
 
                 <!-- 标题：默认1行，溢出才显示按钮 -->
@@ -208,10 +218,13 @@ export default {
       pauseMarquee: false,
       lightbox: { open: false, src: "", alt: "" },
 
+      // ✅ 首图固定为 group4.jpg（heroIndex 从 0 开始），之后按顺序轮播
+      //    zoom：contain 下图片受宽度限制，四周留白可以用放大吃掉。
+      //    上限按"内容不被裁掉"算出来的（见注释）：group4 内容水平占 0.09~0.87 → 最大 1.22；
+      //    group3 内容水平占 0.159~0.839 → 最大 1.47。这里各留一点余量。
       heroImages: [
-        require("@/assets/hero/beijing.png"),
-        require("@/assets/hero/gwastoolkit.png"),
-        require("@/assets/hero/group.jpg"),
+        { src: require("@/assets/hero/group4.jpg"), zoom: 0.96 },
+        { src: require("@/assets/hero/group3.jpg"), zoom: 1.3 }
       ],
       heroIndex: 0,
       heroTimer: null,
@@ -335,6 +348,66 @@ export default {
 
     onMediaLoad() {
       this.$nextTick(() => this.refreshOverflow());
+    },
+
+    /* ✅ 图片自适应（PUBLICATION / RECENT NEWS 共用）
+       宽高比 ≥ 1.7 的基本都是期刊页 / 图表截图，按 cover 裁切会把两端的文字直接切掉
+       → 这类用 contain 完整显示；
+       其余（人物照、活动照、合影）用 cover 裁切，画面更饱满。
+       容器底色从图片四条边采样，contain 留出的空白与图片自然衔接，不会出现刺眼的白条。 */
+    autoFit(e) {
+      const img = e && e.target ? e.target : e;
+      if (!img || !img.naturalWidth || !img.naturalHeight) return;
+
+      const box = img.parentElement;
+      if (!box) return;
+
+      const ratio = img.naturalWidth / img.naturalHeight;
+      const isContain = ratio >= 1.7;
+      img.classList.toggle("is-contain", isContain);
+
+      // 只有 contain 才需要填充色（cover 会铺满，底色只会从圆角缝隙里漏出来）
+      if (!isContain) return;
+      const fill = this.sampleEdgeColor(img);
+      if (fill) box.style.backgroundColor = fill;
+    },
+
+    /* 取图片四条边像素的平均色，作为 contain 留白处的填充色 */
+    sampleEdgeColor(img) {
+      try {
+        const S = 24;
+        const cv = document.createElement("canvas");
+        cv.width = S;
+        cv.height = S;
+        const ctx = cv.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return "";
+
+        ctx.drawImage(img, 0, 0, S, S);
+        const d = ctx.getImageData(0, 0, S, S).data;
+
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let n = 0;
+        const add = (x, y) => {
+          const i = (y * S + x) * 4;
+          r += d[i];
+          g += d[i + 1];
+          b += d[i + 2];
+          n++;
+        };
+        for (let k = 0; k < S; k++) {
+          add(k, 0);
+          add(k, S - 1);
+          add(0, k);
+          add(S - 1, k);
+        }
+        if (!n) return "";
+        return `rgb(${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)})`;
+      } catch (err) {
+        // 图片跨域被污染时读不到像素：静默回退到容器默认底色
+        return "";
+      }
     },
 
     measureOverflow(el) {
@@ -466,51 +539,99 @@ export default {
   --border:#e3ebf5;
   --shadow:0 4px 14px rgba(15,60,120,0.08);
   --shadowHover:0 16px 36px rgba(15,60,120,0.16);
+
+  /* ===== Hero 尺寸参数 =====
+     ① 参考 yanglab.westlake.edu.cn：通栏出血，图片 contain 完整显示 + 吸色填充两侧
+     ② 滚动就是最普通的滚动，不做钉住/淡出/视差
+     ③ 我们的合影很宽，手机竖屏下按宽度铺满即可，所以小屏用接近原图比例的高度
+  */
+  --navH: 72px;              /* 与 AppHeader 的 header 高度保持一致 */
+  --hero-h-sm: 54vw;         /* < 768px：接近图片本身比例，避免上下留白过多 */
+  --hero-h-md: 42vw;         /* 768 ~ 1023px */
+  /* ≥1024px：hero 吃掉除导航和底部那句介绍文案以外的高度，
+     首屏只看得到「照片 + We are a research group ... 那行字」，按钮及以下都要滚动 */
+  --hero-h-lg: clamp(360px, calc(100svh - var(--navH) - 110px), 900px);
+  /* 从 group2.jpg 边缘采样的背景色（#DBDCDE）：
+     主图 contain 后两侧/上下的留白用同一个色值铺底，和照片背景完全接得上、看不出边界。
+     换图时若背景不是纯色，改这个值即可。 */
+  --hero-fill-color: #DBDCDE;
 }
 
-/* ✅ Hero：跟下面内容同版心宽度 + 多图轮播 */
+/* ✅ Hero：桌面端整屏 + 钉住（sticky），小屏正常流 */
 .hero{
   width:100%;
-  padding: 10px 20px;
-  box-sizing:border-box;
+  padding:0;
   margin:0;
-  margin-top:-5px;
+  box-sizing:border-box;
+  height: var(--hero-h-sm);
+  position: relative;
+  z-index:0;
+  display:flex;
+  flex-direction:column;
+  background:#fff;
 }
+
+@media (min-width:768px){
+  .hero{ height: var(--hero-h-md); }
+}
+
+/* 桌面端：半屏多一点的高度（首屏 = 照片 + 一句介绍），随页面正常滚动 */
+@media (min-width:1024px){
+  .hero{
+    height: var(--hero-h-lg);
+    min-height: 380px;
+  }
+}
+
 .hero-inner{
   width:100%;
-  max-width:1200px;
-  margin:0 auto;
+  max-width:none;
+  margin:0;
   position:relative;
+  flex:1 1 auto;
+  min-height:0;
 }
 
 .hero-slider{
   position:relative;
-  height: clamp(320px, 38vw, 750px);
-  border-radius: 18px;
+  width:100%;
+  height:100%;
+  border-radius:0;               /* 通栏出血：去掉圆角 */
   overflow:hidden;
+  background: var(--hero-fill-color);  /* 图片加载前 / contain 留白处的底色，取自图片自身 */
 }
 
+/* 吸色填充：主图 contain 完整显示，两侧/上下留白用图片自身底色补齐，做到完全无缝 */
 .hero-bg{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
-  object-fit: fill; /* 关键修改：改成 contain */
-  object-position:center;
+  object-fit: contain;   /* 关键：整张图完整显示，不裁切也不拉伸 */
+  object-position: center;
+  /* 桌面端用每张图自己的 zoom 吃掉四周留白；小屏图片本来就顶满宽度，不放大（否则会裁边） */
+  --px-zoom: var(--zoom, 1);
+  transform: scale(var(--px-zoom));
   display:block;
   opacity:0;
-  transition: opacity .7s ease;
-  will-change: opacity;
+  transition: opacity .7s ease, transform .7s ease;
+  will-change: opacity, transform;
+  z-index:2;
 }
 .hero-bg.active{ opacity:1; }
+
+/* 小屏（<1024px）：图片已经顶满宽度，取消 zoom，避免裁掉两侧 */
+@media (max-width:1023px){
+  .hero-bg{ --px-zoom: 1; }
+}
 
 /* ✅ 大箭头：无底板 */
 .hero-arrow{
   position:absolute;
   top:50%;
   transform: translateY(-50%);
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
 
   background: transparent;
   border: none;
@@ -524,15 +645,15 @@ export default {
   cursor: pointer;
   user-select: none;
 
-  font-size: 100px;
+  font-size: 78px;
   font-weight: 200;
   line-height: 1;
-  color: rgba(255,255,255,1);
-  text-shadow: 0 10px 26px rgba(0,0,0,0.35);
+  color: rgba(47,93,138,0.62);          /* 浅灰底图 → 用品牌蓝的深色箭头 */
+  text-shadow: 0 6px 20px rgba(255,255,255,0.75);
 
   transition: transform .18s ease, color .18s ease, opacity .18s ease;
   z-index: 3;
-  opacity: 0.92;
+  opacity: 0.95;
 }
 .hero-arrow:hover{
   transform: translateY(-50%) scale(1.06);
@@ -541,31 +662,36 @@ export default {
 .hero-arrow:active{
   transform: translateY(-50%) scale(0.98);
 }
-.hero-arrow.left{ left: -10px; }
-.hero-arrow.right{ right: -10px; }
+.hero-arrow.left{ left: 10px; }
+.hero-arrow.right{ right: 10px; }
+
+/* 小屏图片顶满宽度、两侧没有空档，箭头会压在人脸上 —— 直接收起，用圆点导航 */
+@media (max-width:1023px){
+  .hero-arrow{ display:none; }
+}
 
 /* 圆点 */
 .hero-dots{
   position:absolute;
   left:50%;
   transform:translateX(-50%);
-  bottom:12px;
+  bottom:16px;
   display:flex;
   gap:8px;
-  z-index:2;
+  z-index:3;
 }
 .hero-dot{
   width:9px;
   height:9px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,0.75);
-  background: rgba(255,255,255,0.35);
+  border:1px solid rgba(47,93,138,0.55);
+  background: rgba(47,93,138,0.18);
   cursor:pointer;
   padding:0;
 }
 .hero-dot.active{
-  background: rgba(255,255,255,0.95);
-  border-color: rgba(255,255,255,0.95);
+  background: rgba(47,93,138,0.95);
+  border-color: rgba(47,93,138,0.95);
 }
 
 @media (max-width: 768px){
@@ -574,54 +700,104 @@ export default {
     height: 56px;
     font-size: 68px;
   }
-  .hero-arrow.left{ left: 6px; }
-  .hero-arrow.right{ right: 6px; }
+  .hero-arrow.left{ left: 10px; }
+  .hero-arrow.right{ right: 10px; }
 }
 
 /* Layout */
-.wrap{ width:100%; padding:0 20px 22px; box-sizing:border-box; display:flex; justify-content:center; }
+.wrap{ width:100%; padding:26px 20px 22px; box-sizing:border-box; display:flex; justify-content:center; }
 .stack{ width:100%; max-width:1200px; display:flex; flex-direction:column; gap:24px; }
 
-/* ✅ 整个文案底板区居中 */
-.hero-blurb-wrap{
-  width:100%;
-  max-width:1200px;
-  margin:0 auto;
-  padding:0 20px;
-  box-sizing:border-box;
-
-  margin-top: 0;
-  margin-bottom:22px;
+/* ✅ 声明条（dock）：通栏浅蓝灰底板 + 顶部主色细线
+   为什么这么放：
+   ① yanglab 在 hero 下方用一条强调色细线分隔顶图和正文 → 这里把它做成色带的上边框；
+   ② Broad Institute / CZ Biohub 的 mission statement 用通栏色带，标题感强又不抢图；
+   ③ 底色与页面里的浅蓝标签（--badgeBg #f0f4fb）同一色系，往下过渡到纯白正文不会"断崖" */
+.hero-statement{
   position:relative;
-  z-index:5;
+  overflow:hidden;          /* 兜住卡片背后的光晕 */
+  width:100%;
+  box-sizing:border-box;
+  padding:0 24px 2px;       /* 顶部不留白：玻璃卡直接贴着大图下沿 */
 
+  background:#fff;          /* 不再做通栏色带，直接接白底正文 */
   display:flex;
   flex-direction:column;
   align-items:center;
 }
 
+/* 玻璃卡背后的一层极淡主色光晕（不通栏，只在卡片附近）：
+   backdrop-filter 只对"底下有变化"的区域有效，纯白底上玻璃会退化成一张白卡，
+   这层光晕给了它可模糊的内容，磨砂质感才出得来 */
+.hero-statement::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:min(880px, 86%);
+  height:170px;
+  transform:translate(-50%,-50%);
+  background:
+    radial-gradient(closest-side, rgba(47,93,138,0.42), rgba(47,93,138,0) 70%),
+    radial-gradient(closest-side at 74% 26%, rgba(120,172,222,0.36), rgba(120,172,222,0) 68%);
+  filter:blur(18px);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ✅ 文案：玻璃卡（通透渐变 + 背后模糊 + 高光边），只改字这块，不压图片、不加色带
+   顶部两个角做成直角，卡片与照片下沿严丝合缝，看不出"缝" */
 .hero-blurb{
+  position:relative;
+  z-index:1;
   display:block;
-  width:min(920px, 100%);
+  width:min(1160px, 100%);
+  margin:0;
+  box-sizing:border-box;
   text-align:center;
 
-  padding:14px 18px;
-  background:rgba(240,244,251,1);
-  border:1px solid var(--border);
-  border-radius:14px;
-  box-shadow:0 14px 34px rgba(15,60,120,0.14);
+  padding:16px 26px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.74), rgba(226,236,247,0.62));
+  -webkit-backdrop-filter:blur(22px) saturate(1.4);
+  backdrop-filter:blur(22px) saturate(1.4);
+  border:1px solid rgba(255,255,255,0.95);
+  border-top:none;
+  border-radius:0 0 16px 16px;
+  box-shadow:
+    0 10px 30px rgba(15,60,120,0.09),
+    inset 0 10px 16px -14px rgba(15,60,120,0.30),   /* 贴着照片那一侧的内阴影，像玻璃被压住的暗边 */
+    inset 0 -1px 0 rgba(255,255,255,0.7);
 
   font-size:20px;
-  line-height:1.75;
-  color:#2b2b2b;
+  line-height:1.72;
+  color:#22303d;
 }
 
 .hero-actions-bottom{
-  margin-top:14px;
+  margin-top:18px;
   display:flex;
   gap:12px;
   flex-wrap:wrap;
   justify-content:center;
+}
+
+/* 声明条响应式：小屏收窄内边距与字号，窄屏改左对齐更好读 */
+@media (max-width:1023px){
+  .hero-statement{ padding:0 20px 20px; }
+  .hero-blurb{ font-size:17px; line-height:1.68; padding:14px 20px; }
+  .hero-actions-bottom{ margin-top:16px; }
+}
+@media (max-width:600px){
+  .hero-statement{ padding:0 16px 18px; }
+  .hero-blurb{ font-size:15.5px; line-height:1.72; text-align:left; padding:14px 16px; border-radius:0 0 14px 14px; }
+  /* 窄屏三个按钮挤不下一行：改成整宽竖排，点击区域大、也不会把文字压出边界 */
+  .hero-actions-bottom{
+    margin-top:14px;
+    width:100%;
+    flex-direction:column;
+    gap:10px;
+  }
+  .hero-actions-bottom .btn{ width:100%; height:40px; padding:0 10px; font-size:15px; box-sizing:border-box; }
 }
 
 .hero-key{
@@ -662,7 +838,10 @@ export default {
 }
 .marquee-item:hover{ transform:translateY(-6px); box-shadow:var(--shadowHover); }
 
-.marquee-img{ width:100%; height:100%; object-fit:cover; display:block; }
+/* 默认 cover（照片类）：裁切时偏上取景，避免把人的头切掉 */
+.marquee-img{ width:100%; height:100%; object-fit:cover; object-position:center 35%; display:block; }
+/* 宽幅截图（期刊页/图表）：完整显示，不切文字；留白由 JS 采样的底色填上 */
+.marquee-img.is-contain{ object-fit:contain; object-position:center; }
 .clickable-img{ cursor: pointer; }
 
 /* ✅ 放大镜：与 NewsPage 一样 */
@@ -716,7 +895,9 @@ export default {
 .news-date{ font-size:15px; font-weight:900; color:var(--accent); }
 .news-type{ height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--border); background:rgba(47,93,138,0.08); color:var(--accent); font-size:13px; font-weight:900; white-space:nowrap; }
 .news-image{ width:100%; height:220px; border-radius:12px; border:1px solid var(--border); overflow:hidden; box-shadow:0 2px 10px rgba(15,60,120,0.08); background:#fff; }
-.news-image img{ width:100%; height:100%; object-fit:cover; display:block; }
+.news-image img{ width:100%; height:100%; object-fit:cover; object-position:center 35%; display:block; }
+/* 宽幅截图：完整显示（同 publication） */
+.news-image img.is-contain{ object-fit:contain; object-position:center; }
 .title-slot{ margin-top:10px; position:relative; }
 .desc-slot{ margin-top:26px; position:relative; }
 .news-title{ font-size:17px; font-weight:900; color:var(--accent); line-height:1.35; text-align:left; word-break:break-word; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:1; overflow:hidden; height:calc(1 * 1.35em); }

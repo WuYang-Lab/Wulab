@@ -19,7 +19,7 @@ import FooterSection from '../components/Footer.vue'
 
 <style scoped>
 .home-main {
-  padding-top: 92px; /* 顶部导航 70px + 呼吸 */
+  padding-top: 72px; /* = 导航栏高度（AppHeader 的 --navH），让首屏图片紧贴 header，不留白 */
   padding-bottom: 24px;
 
   /* 与 People 统一的 token */

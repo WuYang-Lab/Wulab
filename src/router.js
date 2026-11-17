@@ -12,29 +12,43 @@ import JoinContactPage from './views/JoinPage.vue';
 import ResearchPage from './views/ResearchPage.vue';
 import PeoplePage from './views/PeoplePage.vue';
 
-import TutorialLayout from "./tutorials/TutorialLayout.vue";
-import TutorialIndexView from "./tutorials/TutorialIndexView.vue";
-import TutorialDetailView from "./tutorials/TutorialDetailView.vue";
+import { FEATURES } from './config/site';
+
+/* Tutorial 板块由 src/config/site.js 的 FEATURES.tutorial 控制。
+   关闭时：路由不注册（组件与 md 走异步 chunk，也不会被加载），
+   访问 /tutorial 直接回首页；开启时恢复原样。 */
+const tutorialRoutes = FEATURES.tutorial
+  ? [
+      {
+        path: "/tutorial",
+        component: () => import("./tutorials/TutorialLayout.vue"),
+        children: [
+          { path: "", name: "TutorialIndex", component: () => import("./tutorials/TutorialIndexView.vue") },
+          { path: ":slug", name: "TutorialDetail", component: () => import("./tutorials/TutorialDetailView.vue"), props: true },
+        ],
+      },
+    ]
+  : [{ path: "/tutorial/:pathMatch(.*)*", redirect: "/" }];
 
 const routes = [
   { path: "/", component: HomePage },
   { path: "/research", component: ResearchPage },
   { path: "/software", name:"Software", component: SoftwarePage },
   { path: "/software/gctb", name: "GCTBPortal", component: GctbRun },
+  /* 软件文档页：GWFM / OPERA 共用一套 Vue 外壳（AppHeader + 二级导航 + 目录） */
+  {
+    path: "/software/:soft(GWFM|OPERA)",
+    name: "SoftDoc",
+    component: () => import("./views/softdoc/SoftDoc.vue"),
+    props: true,
+  },
   { path: '/publications', component: PublicationPage },
   { path: '/data', component: DataPage },
   { path: '/data/:id', component: DataDetail },
   { path: "/news", component: NewsPage },
   { path: "/contact", component:  JoinContactPage },
   { path: "/people", component:  PeoplePage },
-  {
-    path: "/tutorial",
-    component: TutorialLayout,
-    children: [
-      { path: "", name: "TutorialIndex", component: TutorialIndexView },
-      { path: ":slug", name: "TutorialDetail", component: TutorialDetailView, props: true },
-    ],
-  },
+  ...tutorialRoutes,
 ];
 
 const router = createRouter({

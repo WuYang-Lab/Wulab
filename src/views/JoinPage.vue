@@ -1,19 +1,11 @@
 <template>
   <div class="join-page">
-    
-    <!-- 中间内容区域 -->
-    <div class="inner-content">
-      
-      <!-- JOIN US 标题 -->
-      <div class="title-wrapper">
-        <div class="title-card">
-          <h1>JOIN US</h1>
-        </div>
-      </div>
+    <div class="join-shell">
 
-      <!-- 职位卡片 -->
+      <!-- JOIN US -->
+      <h2 class="block-title">Join us</h2>
+
       <div class="positions-grid">
-        <!-- Postdoctoral Fellow 卡片 -->
         <div class="position-card">
           <div class="icon-plate icon-plate-lg" aria-hidden="true">
             <svg class="icon-svg" viewBox="0 0 24 24" fill="none">
@@ -24,18 +16,21 @@
               <path class="s" d="M8.1 12.9c1.8.7 3.7 1.1 5.9 1.1 2.1 0 4-.4 5.8-1.1" />
             </svg>
           </div>
-          
-          <!-- ✅ 修改点：加上链接，去掉 More 按钮 -->
-          <h2>
+
+          <h3 class="pos-name">
             <a href="http://www.wchscu.cn/public/notice/recruit/77467.html" class="pos-link">Postdoctoral Fellow</a>
-          </h2>
-          <!-- ✅ 修改点：描述直接显示 -->
+          </h3>
           <p class="pos-desc">
-            We welcome postdocs with expertise in genomics, bioinformatics, or statistical genetics.
+            We welcome postdoctoral researchers with expertise in genomics, bioinformatics, or statistical genetics.
           </p>
+          <ul class="pos-reqs">
+            <li>Develop scalable statistical and computational methods for large-scale genomic and multi-omics datasets, disseminated as open-source software.</li>
+            <li>Integrate single-cell, spatial, and population-scale omics data to map risk variants onto genes, cell types, and underlying disease mechanisms.</li>
+            <li>Candidates should hold a PhD in statistical genetics, bioinformatics, computational biology, biostatistics, or a closely related discipline.</li>
+            <li>Benefit from biobank-scale cohorts, curated multi-omics resources, and a dedicated high-performance computing infrastructure.</li>
+          </ul>
         </div>
 
-        <!-- PhD / Master Students 卡片 -->
         <div class="position-card">
           <div class="icon-plate icon-plate-lg" aria-hidden="true">
             <svg class="icon-svg" viewBox="0 0 24 24" fill="none">
@@ -47,28 +42,27 @@
               <path class="b" d="M16.0 12.0h1.8" />
             </svg>
           </div>
-          
-          <!-- ✅ 修改点：分别给 PhD 和 Master 加上链接 -->
-          <h2>
-            <a href="https://yjs.cd120.com/contents/412/7080.html" class="pos-link">PhD</a> / 
-            <a href="https://yjs.cd120.com/contents/412/6627.html" class="pos-link">Master</a> 
+
+          <h3 class="pos-name">
+            <a href="https://yjs.cd120.com/contents/412/7080.html" class="pos-link">PhD</a> /
+            <a href="https://yjs.cd120.com/contents/412/6627.html" class="pos-link">Master</a>
             Students
-          </h2>
-          <!-- ✅ 修改点：描述直接显示 -->
+          </h3>
           <p class="pos-desc">
-            Looking for highly motivated students to pursue graduate research projects in human genomics.
+            We seek highly motivated students to pursue graduate research in human genomics.
           </p>
+          <ul class="pos-reqs">
+            <li>Undertake research spanning statistical genetics method development, single-cell multi-omics, disease risk prediction, and novel gene discovery.</li>
+            <li>Acquire proficiency in state-of-the-art approaches including fine-mapping, Mendelian randomization, and multi-omics integration.</li>
+            <li>Suitable for students with a background or strong interest in genetics, bioinformatics, statistics, or computer science.</li>
+            <li>Receive rigorous research mentorship, scientific writing and presentation training, and access to high-performance computing resources.</li>
+          </ul>
         </div>
       </div>
 
-      <!-- CONTACT US 标题 -->
-      <div class="title-wrapper title-wrapper--contact">
-        <div class="title-card">
-          <h1>CONTACT US</h1>
-        </div>
-      </div>
+      <!-- CONTACT US -->
+      <h2 class="block-title">Contact us</h2>
 
-      <!-- 联系方式卡片 -->
       <div class="contact-card">
         <div class="contact-item">
           <span class="icon-plate icon-plate-sm" aria-hidden="true">
@@ -92,45 +86,43 @@
           <span>D5A, Chengdu Frontiers Medical Center, 2222 Xinchuan Road, Chengdu, Sichuan Province, China</span>
         </div>
       </div>
-      
-    </div> <!-- END of inner-content -->
 
-    <!-- 合作伙伴部分：绝对定位锁死在屏幕最底部 -->
-    <div class="partners-section-wrapper" v-if="partnerLogos && partnerLogos.length">
-      <div class="partners-title">Collaborating Institutions</div>
-      
-      <div
-        class="partners-marquee"
-        @mouseenter="pausePartners = true"
-        @mouseleave="pausePartners = false"
-      >
-        <div class="partners-track" :class="{ paused: pausePartners }">
-          <div class="partners-group">
-            <a
-              v-for="(p, i) in loopPartners"
-              :key="'a-' + i"
-              class="partner-item"
-              :href="p.link || '#'"
-              target="_blank"
-            >
-              <img class="partner-logo" :src="p.src" :alt="p.name" />
-            </a>
-          </div>
-          <div class="partners-group" aria-hidden="true">
-            <a
-              v-for="(p, i) in loopPartners"
-              :key="'b-' + i"
-              class="partner-item"
-              :href="p.link || '#'"
-              target="_blank"
-            >
-              <img class="partner-logo" :src="p.src" :alt="p.name" />
-            </a>
+      <!-- 合作伙伴 -->
+      <div class="partners-section" v-if="partnerLogos && partnerLogos.length">
+        <div class="footer-line"></div>
+        <div
+          class="partners-marquee"
+          @mouseenter="pausePartners = true"
+          @mouseleave="pausePartners = false"
+        >
+          <div class="partners-track" :class="{ paused: pausePartners }">
+            <div class="partners-group">
+              <a
+                v-for="(p, i) in loopPartners"
+                :key="'a-' + i"
+                class="partner-item"
+                :href="p.link || '#'"
+                target="_blank"
+              >
+                <img class="partner-logo" :src="p.src" :alt="p.name" />
+              </a>
+            </div>
+            <div class="partners-group" aria-hidden="true">
+              <a
+                v-for="(p, i) in loopPartners"
+                :key="'b-' + i"
+                class="partner-item"
+                :href="p.link || '#'"
+                target="_blank"
+              >
+                <img class="partner-logo" :src="p.src" :alt="p.name" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
 </template>
 
@@ -139,7 +131,6 @@ export default {
   name: "JoinPage",
   data() {
     return {
-      // openPos 已删除，不再需要
       pausePartners: false,
       partnerLogos: [
         { name: "West China Hospital", src: require("@/assets/institution/huaxi.jpg") },
@@ -168,192 +159,236 @@ export default {
       return out;
     }
   }
-  // methods 已删除，不再需要 toggle
 };
 </script>
 
 <style scoped>
-/* 1. 全局布局 */
 .join-page {
-  position: relative;
   width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  
-  background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
-                    url('@/assets/hero/beijing.png'); 
-  background-size: cover;
-  background-position: center;
-  
+  min-height: 100vh; /* header 是 fixed 悬浮不占流，页面本体从 y=0 开始，撑满整个视口 */
   display: flex;
-  flex-direction: column;
-  
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --ink: #7b7b7b;
-  --blue: #7fc4ff;
-  --accent: #2f5d8a;
-}
-
-/* 2. 中间内容区 */
-.inner-content {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 80px 20px 0 20px;
-  
-  height: calc(100vh - 160px); 
-  display: flex;
-  flex-direction: column;
   justify-content: center;
+}
+.join-shell {
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+  padding: 88px 20px 16px; /* header 72px 悬浮，88px 留白保证标题不被遮挡且尽量紧凑 */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: left;
+
+  display: flex;
+  flex-direction: column;
+
+  --accent: #2f5d8a;
+  --ink: #16324f;
+  --border: #e3ebf5;
+  --muted: #8b96a3;
+  --blue: #7fc4ff;
+}
+
+/* 板块标题：与其他页一致的浅字 + 右侧引线 */
+.block-title {
+  display: flex;
   align-items: center;
+  gap: 18px;
+  margin: 0 0 22px;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #8ca6bf;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.block-title::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: #d9e5f2;
 }
 
-/* 标题样式 */
-.title-wrapper { text-align: center; }
-.title-wrapper--contact { margin-top: 4vh; }
-
-.title-card {
-  display: inline-block;
-  background: rgba(240, 244, 251, 0.9);
-  padding: 10px 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(15, 60, 120, 0.08);
-}
-.title-card h1 { font-size: 28px; color: #1a3e6e; margin: 0; }
-
-/* 职位卡片布局 */
+/* 职位卡片网格 */
 .positions-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(260px, 1fr));
-  gap: 40px;
-  margin-top: 4vh;
-  justify-items: center;
-  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: stretch;
+  margin-bottom: 32px;
 }
 .position-card {
-  width: min(360px, 100%);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  border: 1px solid #e3ebf5;
+  border-radius: 10px;
+  background: #fff;
+  padding: 28px 24px;
+  box-shadow: 0 2px 10px rgba(15, 60, 120, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.position-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 60, 120, 0.1);
 }
 
 /* 图标 */
 .icon-plate {
-  background: #fff;
-  box-shadow: 0 4px 14px rgba(15, 60, 120, 0.08);
+  background: #f5f9fd;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.icon-plate-lg { width: 80px; height: 80px; margin-bottom: 12px; }
-.icon-plate-sm { width: 50px; height: 50px; flex: 0 0 auto; }
+.icon-plate-lg { width: 60px; height: 60px; margin-bottom: 16px; }
+.icon-plate-sm { width: 46px; height: 46px; flex: 0 0 auto; }
 
-.icon-svg { width: 55px; height: 55px; fill: none; }
-.icon-svg-sm { width: 30px; height: 30px; fill: none; }
+.icon-svg { width: 40px; height: 40px; fill: none; }
+.icon-svg-sm { width: 26px; height: 26px; fill: none; }
 .s { stroke: var(--ink); stroke-width: 2.4; }
 .b { stroke: var(--blue); stroke-width: 3.2; }
 
-/* 链接样式 */
-.position-card h2 { 
-  font-size: 20px; 
-  color: #2f5d8a; 
-  margin: 0; 
+/* 职位名称 */
+.pos-name {
+  margin: 0 0 12px;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #16324f;
+  line-height: 1.3;
 }
-/* 新增：文字链接样式 */
 .pos-link {
-  color: inherit; /* 继承h2颜色 */
-  text-decoration: underline; /* 加上下划线 */
-  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid #c9d8e8;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 .pos-link:hover {
-  color: var(--accent); /* 悬停变色，可选 */
+  color: #2f5d8a;
+  border-color: #2f5d8a;
 }
 
-/* 描述文字：默认显示 */
-.pos-desc { 
-  margin-top: 8px; 
-  font-size: 14px; 
-  color: #444; 
-  line-height: 1.5; 
-  display: block; /* 永远显示 */
+.pos-desc {
+  margin: 0 0 16px;
+  font-size: 15.5px;
+  color: #55636f;
+  line-height: 1.6;
+}
+
+.pos-reqs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pos-reqs li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 14px;
+  color: #55636f;
+  line-height: 1.6;
+}
+.pos-reqs li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2f5d8a;
 }
 
 /* 联系方式卡片 */
 .contact-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(15, 60, 120, 0.08);
+  box-sizing: border-box;
+  border: 1px solid #e3ebf5;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(15, 60, 120, 0.05);
   padding: 24px;
-  max-width: 520px;
   width: 100%;
-  margin-top: 3vh;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-bottom: 24px;
 }
-.contact-item { 
-  display: flex; 
-  align-items: center; 
-  gap: 16px; 
-  color: #444; 
-  line-height: 1.6; 
-  word-break: break-word; 
-  font-size: 18px; /* 保持您要求的大小 */
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  color: #444;
+  line-height: 1.6;
+  word-break: break-word;
+  font-size: 18px;
 }
-.contact-link { font-weight: 600; color: #444; text-decoration: underline; }
-.contact-link:hover { color: var(--accent); }
+.contact-link { font-weight: 600; color: #16324f; font-size: 18px; text-decoration: none; }
+.contact-link:hover { color: #2f5d8a; }
 
-/* 3. 底部合作伙伴 */
-.partners-section-wrapper { 
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%; 
+/* 合作伙伴（与 Footer 一致的简洁滚动条） */
+.footer-line {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #e3ebf5, transparent);
+  margin-bottom: 12px;
 }
-
-.partners-title { 
-  text-align: center; 
-  font-size: 20px; 
-  font-weight: 700; 
-  color: var(--accent); 
-  margin-bottom: 10px; 
+.partners-section {
+  width: 100%;
+  margin-top: auto; /* 推到页面底部，与 Footer 贴底效果一致 */
+  margin-bottom: 0;
+  padding-bottom: 6px;
 }
-
-/* 轮播区域 */
 .partners-marquee {
   width: 100%;
   overflow: hidden;
-  background-color: #fff;
-  padding: 10px 0; 
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  background: none;
+  padding: 10px 8px;
 }
-
-.partners-track { 
-  display: flex; 
-  width: max-content; 
-  animation: partnersMarquee 120s linear infinite;
+.partners-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  will-change: transform;
+  animation: partnersMarquee 80s linear infinite;
 }
 .partners-track.paused { animation-play-state: paused; }
-.partners-group { 
-  display: flex; 
-  gap: 40px; 
-  padding-right: 40px; 
-  align-items: center; 
+.partners-group {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding-right: 22px;
 }
 @keyframes partnersMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 .partner-item {
-  display: flex;
+  height: 62px;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  padding: 2px 10px;
+  border-radius: 10px;
   text-decoration: none;
+  flex: 0 0 auto;
+}
+.partner-logo {
+  max-height: 55px;
+  max-width: 220px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.15s ease;
+}
+.partner-item:hover .partner-logo {
+  transform: translateY(-1px);
 }
 
-.partner-logo { 
-  max-height: 55px; 
-  display: block; 
-  object-fit: contain; 
-  padding: 5px;
+/* 响应式 */
+@media (max-width: 768px) {
+  .join-shell { padding: 88px 18px 60px; }
+  .block-title { font-size: 26px; }
+  .positions-grid { grid-template-columns: 1fr; }
 }
 </style>

@@ -1,21 +1,15 @@
 <template>
   <div class="data-page">
+    <div class="data-shell">
+      <h2 class="block-title">Data</h2>
 
-    <!-- 页面标题和简介 -->
-    <div class="data-header">
-      <h1 class="data-title">Data</h1>
-      <p class="data-intro">
-      </p>
-    </div>
-
-    <!-- 模块底板 -->
-    <div class="data-board">
-      <div class="module-grid">
-        <div class="module-card" v-for="(module, index) in modules" :key="index">
-          
-          <div class="module-title-board">
-            <h2>{{ module.title }}</h2>
-          </div>
+      <div class="data-grid">
+        <div
+          v-for="(module, index) in modules"
+          :key="index"
+          class="module-card"
+        >
+          <h3 class="module-title">{{ module.title }}</h3>
 
           <p class="module-description">
             <template v-for="(segment, sIndex) in module.introSegments" :key="sIndex">
@@ -42,7 +36,6 @@
               </a>
             </template>
           </p>
-
         </div>
       </div>
     </div>
@@ -58,25 +51,25 @@ export default {
         {
           title: "UK Biobank GWAS summary data",
           introSegments: [
-            { type: 'text', content: 'GWAS summary statistics for UK Biobank: ' },
-            { type: 'route', content: 'fastGWA data portal', to: '/data/bulk-rnaseq' },
+            { type: 'text', content: 'Association summary statistics for UK Biobank traits and biomarkers, estimated with fastGWA on imputed genotypes. ' },
+            { type: 'route', content: 'Browse the data portal', to: '/data/GWAS' },
             { type: 'text', content: '.' }
           ]
         },
         {
           title: "Data from our publications",
           introSegments: [
-            { type: 'text', content: 'Please ' },
-            { type: 'route', content: 'click here', to: '/data/single-cell' },
-            { type: 'text', content: ' for summary-level data from publications.' }
+            { type: 'text', content: 'Summary-level GWAS, fine-mapping and SMR results released alongside our papers, each with a description of what the files contain. ' },
+            { type: 'route', content: 'Browse the datasets', to: '/data/pubData' },
+            { type: 'text', content: '.' }
           ]
         },
         {
           title: "Other Resources",
           introSegments: [
-            { type: 'text', content: 'Additional datasets and reference files. Please ' },
-            { type: 'route', content: 'click here', to: '/data/other' },
-            { type: 'text', content: ' to view details.' }
+            { type: 'text', content: 'Reference xQTL and eQTL panels in SMR BESD format that we use as molecular-trait input. ' },
+            { type: 'route', content: 'View the resources', to: '/data/other' },
+            { type: 'text', content: '.' }
           ]
         }
       ]
@@ -86,105 +79,109 @@ export default {
 </script>
 
 <style scoped>
-.data-page { 
-  width: 100%; 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  font-family: "Helvetica Neue", Arial, sans-serif; 
+.data-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
-.data-header { 
-  max-width: 960px; 
-  width: 100%; 
-  margin: 50px 20px 20px; 
-  text-align: left; 
-}
-.data-header h1.data-title { 
-  font-size: 32px;
-  font-weight: 700;
-  color: #000;
+.data-shell {
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+  padding: 96px 20px 64px; /* 72px fixed header + breathing */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   text-align: left;
-  margin-bottom: 0;
 
-  visibility: hidden; /* ✅ 不显示文字，但保留占位，模块位置不变 */
-}
-  
-.data-header p.data-intro { 
-  font-size: 16px; 
-  color: #555; 
-  margin-bottom: 0; 
+  --accent: #2f5d8a;
+  --ink: #16324f;
+  --border: #e3ebf5;
+  --muted: #8b96a3;
 }
 
-/* 模块底板 */
-.data-board { 
-  max-width: 960px; 
-  width: 100%; 
-  background: #fff; 
-  border-radius: 12px; 
-  padding: 28px 32px; 
-  box-shadow: 0 6px 20px rgba(0,0,0,0.06); 
-  margin: 20px; 
-  color: #4b5563; 
+/* 板块标题：与其他页一致的浅字 + 右侧引线 */
+.block-title {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 30px;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #8ca6bf;
 }
-.module-grid { 
-  display: flex; 
-  justify-content: space-between; 
-  gap: 20px; 
-  flex-wrap: wrap; 
-  text-align: left; 
-}
-
-/* 模块卡片 */
-.module-card { 
-  width: 30%; 
-  min-width: 250px; 
-  display: flex; 
-  flex-direction: column; 
+.block-title::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: #d9e5f2;
 }
 
-/* 模块标题底板，自动统一高度 */
-.module-title-board { 
-  background-color: #e2e8f0; 
-  padding: 10px; 
-  border-radius: 6px; 
-  text-align: center; 
-  margin-bottom: 12px; 
-  transition: background-color 0.3s ease; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  min-height: 48px; /* 保持高度一致 */
-}
-.module-title-board:hover { 
-  background-color: #cbd5e1; 
-}
-.module-title-board h2 { 
-  font-size: 20px; 
-  margin: 0; 
-  color: #2f5d8a; 
-  font-weight: 700; 
+/* 卡片网格：与 Software 一致的 3 列布局 */
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  align-items: stretch;
 }
 
-/* 模块描述 */
-.module-description { 
-  font-size: 14px; 
-  line-height: 1.5; 
-  color: #4b5563; 
+.module-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e3ebf5;
+  border-radius: 10px;
+  background: #fff;
+  padding: 22px 18px 18px;
+  box-shadow: 0 2px 10px rgba(15, 60, 120, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.module-link { 
-  color: #004680; 
-  text-decoration: underline; 
-  text-underline-offset: 2px;   /* ✅ 下划线离文字远一点，更清爽 */
-  display: inline-block; 
-  padding: 2px 6px; 
-  border-radius: 4px; 
-  transition: all 0.25s ease; 
+.module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 60, 120, 0.1);
 }
-.module-link:hover { 
-  color: #fff; 
-  background-color: #004680; 
-  transform: translateY(-2px); 
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
-  text-decoration: none; 
+
+.module-title {
+  margin: 0 0 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eef3f8;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #16324f;
+}
+
+.module-description {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #55636f;
+}
+
+.module-link {
+  color: #2f5d8a;
+  text-decoration: none;
+  border-bottom: 1px solid #c9d8e8;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.module-link:hover {
+  color: #16324f;
+  border-color: #2f5d8a;
+}
+
+/* 响应式：与 Software 一致 */
+@media (max-width: 1024px) {
+  .data-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 768px) {
+  .data-shell {
+    padding: 88px 18px 60px;
+  }
+  .data-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -3,105 +3,135 @@
     <div class="news-shell">
       <div class="news-content">
 
-        <!-- ✅ EVENTS：按年份分块 -->
-        <section class="events-section">
-          <div class="section-head center-head">
-            <div class="section-badge section-badge-center">EVENTS</div>
-          </div>
+        <h1 class="page-title">News &amp; events</h1>
 
-          <section
-            v-for="y in eventYears"
-            :key="'ev-' + y"
-            class="events-year"
-          >
-            <div class="section-head center-head">
-              <div class="section-badge section-badge-center year-badge">{{ y }}</div>
-            </div>
+        <!-- ✅ LATEST：最新的三件事（不分类，纯按时间倒序） -->
+        <section class="hl-section">
+          <h2 class="block-title">
+            <span>Latest</span>
+          </h2>
 
-            <div class="news-grid">
-              <article
-                v-for="item in visibleEventsByYear(y)"
-                :key="item.id"
-                class="news-card"
-              >
-                <div class="news-meta">
-                  <div class="news-date">{{ formatDate(item.date) }}</div>
-                  <span class="news-type" v-if="item.type">{{ item.type }}</span>
+          <div class="hl-grid">
+            <article
+              v-for="item in latest"
+              :key="'hl-' + item.id"
+              class="hl-card"
+              :class="{ 'is-open': isLatestOpen(item.id) }"
+            >
+              <div class="hl-media" v-if="item.image">
+                <img
+                  :src="item.image"
+                  :alt="item.title"
+                  class="hl-img"
+                  @load="autoFit"
+                  @click="openEventImage(item.image, item.title)"
+                />
+              </div>
+
+              <div class="hl-body">
+                <div class="hl-meta">
+                  <span class="ntag" :class="typeClass(item.type)">{{ prettyType(item.type) }}</span>
+                  <span class="hl-date">{{ formatDate(item.date) }}</span>
                 </div>
 
-                <div class="news-image" v-if="item.image">
-                  <img
-                    :src="item.image"
-                    :alt="item.title"
-                    class="clickable-img"
-                    @click="openEventImage(item.image, item.title)"
-                  />
-                </div>
-                <div class="news-image placeholder" v-else>
-                  <span>No image</span>
-                </div>
-
-                <div class="news-title">{{ item.title }}</div>
-
-                <div class="news-desc" :class="{ expanded: isItemExpanded(item.id) }">
+                <h3 class="hl-title">{{ item.title }}</h3>
+                <p
+                  class="hl-desc"
+                  :class="{ 'is-open': isLatestOpen(item.id) }"
+                  @click="toggleLatest(item.id)"
+                >
                   {{ item.description }}
-                </div>
+                </p>
 
-                <button
-                  v-if="needsExpand(item.description)"
-                  class="expand-btn"
-                  type="button"
-                  @click="toggleItem(item.id)"
-                >
-                  {{ isItemExpanded(item.id) ? "Less" : "More" }}
-                </button>
-
-                <button
-                  v-if="item.link"
-                  class="read-more"
-                  type="button"
-                  @click="goLink(item.link)"
-                >
+                <button v-if="item.link" class="hl-link" type="button" @click="goLink(item.link)">
                   Read more →
                 </button>
-              </article>
-            </div>
+                <!-- ✅ 无链接时占位，保证三张卡默认等高 -->
+                <span v-else class="hl-link is-placeholder" aria-hidden="true">Read more →</span>
+              </div>
+            </article>
+          </div>
+        </section>
 
-            <div class="events-actions" v-if="hasMoreEventsByYear(y)">
-              <button class="toggle-btn" type="button" @click="toggleEventYear(y)">
-                {{ expandedEventYears[y] ? "Show less" : "More" }}
+        <!-- ✅ 其余条目：直接按年份排列 -->
+        <section class="tl-section">
+          <section v-for="y in eventYears" :key="'ev-' + y" class="tl-year">
+            <h3 class="year-title">
+              <span>{{ y }}</span>
+            </h3>
+
+            <ul class="tl-list">
+              <li v-for="item in visibleEventsByYear(y)" :key="item.id" class="tl-item">
+                <span class="tl-date">{{ shortDate(item.date) }}</span>
+
+                <button
+                  v-if="item.image"
+                  class="tl-thumb"
+                  type="button"
+                  :aria-label="'View image: ' + item.title"
+                  @click="openEventImage(item.image, item.title)"
+                >
+                  <img :src="item.image" :alt="item.title" loading="lazy" />
+                </button>
+                <div v-else class="tl-thumb is-empty"></div>
+
+                <div class="tl-main">
+                  <div class="tl-head">
+                    <h4 class="tl-title">{{ item.title }}</h4>
+                    <span class="ntag" :class="typeClass(item.type)">{{ prettyType(item.type) }}</span>
+                  </div>
+                  <p class="tl-desc">{{ item.description }}</p>
+                </div>
+
+                <button v-if="item.link" class="tl-link" type="button" @click="goLink(item.link)">
+                  Read more →
+                </button>
+              </li>
+            </ul>
+
+            <div class="tl-actions" v-if="hasMoreEventsByYear(y)">
+              <button class="tl-more" type="button" @click="toggleEventYear(y)">
+                {{ expandedEventYears[y] ? "Show less" : "Show more from " + y }}
               </button>
             </div>
-
-            <div class="year-divider"></div>
           </section>
         </section>
 
-        <!-- ✅ MEMORY WALL：环形照片 -->
+        <!-- ✅ MEMORY WALL：瀑布流照片墙 -->
         <section class="memory-wall">
-          <div class="section-head mw-head center-head">
-            <div class="section-badge mw-badge section-badge-center">MEMORY WALL</div>
-          </div>
+          <h2 class="block-title">
+            <span>Moments from the lab</span>
+          </h2>
 
-          <div class="mw-ring-wrap" v-if="memoryImages.length">
-            <div class="mw-ring" ref="mwRing">
-              <div class="mw-center" v-if="mwCenterSrc">
-                <img :src="mwCenterSrc" class="mw-center-img" alt="Center" />
-              </div>
-
-              <button
-                v-for="(src, i) in memoryImages"
-                :key="i"
-                class="mw-rimg"
-                :class="{ center: i === mwCenter }"
-                :style="mwRingItemStyle(i)"
-                type="button"
-                @click.stop.prevent="mwSelect(i)"
-                aria-label="Select photo"
-              >
-                <img :src="src" alt="Memory" loading="lazy" />
-              </button>
-            </div>
+          <div class="mw-grid" v-if="memoryImages.length">
+            <button
+              v-for="(m, i) in memoryImages"
+              :key="i"
+              class="mw-tile"
+              :class="{ 'mw-feature': m.feature }"
+              type="button"
+              @click="openMemory(i)"
+              :aria-label="'View photo ' + (i + 1)"
+            >
+              <template v-if="m.more">
+                <span class="mw-more-dots" aria-hidden="true">···</span>
+              </template>
+              <template v-else>
+                <img :src="m.src" :alt="m.caption" loading="lazy" />
+                <span class="mw-cap" v-if="m.caption">{{ m.caption }}</span>
+              </template>
+            </button>
+            <button
+              v-for="(k, j) in moreCards"
+              :key="'more-' + j"
+              class="mw-tile mw-more"
+              type="button"
+              tabindex="-1"
+              aria-hidden="true"
+              :style="{ gridColumn: 'span ' + k.span }"
+            >
+              <span class="mw-more-dots" aria-hidden="true">···</span>
+            </button>
           </div>
 
           <div class="mw-empty" v-else>
@@ -109,12 +139,22 @@
           </div>
         </section>
 
-        <!-- ✅ EVENTS 图片放大 Lightbox（不要太大） -->
+        <!-- ✅ 图片放大 Lightbox -->
         <div v-if="eventLightbox.open" class="evt-lightbox" @click="closeEventImage">
           <div class="evt-lightbox-inner" @click.stop>
             <button class="evt-lightbox-close" type="button" @click="closeEventImage" aria-label="Close">✕</button>
             <img :src="eventLightbox.src" :alt="eventLightbox.alt" class="evt-lightbox-img" />
           </div>
+        </div>
+
+        <!-- ✅ 照片墙大图 -->
+        <div v-if="mwIndex >= 0" class="evt-lightbox" @click="closeMemory">
+          <button class="mw-nav prev" type="button" @click.stop="stepMemory(-1)" aria-label="Previous photo">‹</button>
+          <div class="evt-lightbox-inner" @click.stop>
+            <button class="evt-lightbox-close" type="button" @click="closeMemory" aria-label="Close">✕</button>
+            <img :src="mwCurrent.src" :alt="mwCurrent.caption" class="evt-lightbox-img" />
+          </div>
+          <button class="mw-nav next" type="button" @click.stop="stepMemory(1)" aria-label="Next photo">›</button>
         </div>
 
       </div>
@@ -125,69 +165,99 @@
 <script>
 import { newsList } from "@/news";
 
+const MONTHS = {
+  jan: 0, january: 0,
+  feb: 1, february: 1,
+  mar: 2, march: 2,
+  apr: 3, april: 3,
+  may: 4,
+  jun: 5, june: 5,
+  jul: 6, july: 6,
+  aug: 7, august: 7,
+  sep: 8, sept: 8, september: 8,
+  oct: 9, october: 9,
+  nov: 10, november: 10,
+  dec: 11, december: 11
+};
+
+/* 把 { month, day, year } 转成时间戳，用于排序 */
+function toTime(d) {
+  const key = String((d && d.month) || "").trim().toLowerCase();
+  const m = MONTHS[key] !== undefined ? MONTHS[key] : 0;
+  const day = parseInt(String((d && d.day) || "1").replace(/\D/g, ""), 10) || 1;
+  const y = parseInt(String((d && d.year) || "1970").replace(/\D/g, ""), 10) || 1970;
+  return new Date(y, m, day).getTime();
+}
+
+/* 数据里的 type 是全大写，展示时统一成人话；日常类合并为 Lab life */
+const TYPE_LABEL = {
+  PUBLICATION: "Publication",
+  CONGRATULATION: "Award",
+  ACADEMIC: "Academic",
+  SEMINAR: "Seminar",
+  WELCOME: "Welcome",
+  PARTY: "Gathering",
+  DISSCUSSION: "Discussion",
+  KITTY: "Lab life",
+  INTERESTING: "Lab life",
+  "LAB ACTIVITIES": "Lab life",
+  "NICE DAY": "Lab life"
+};
+
+const LIFE_TYPES = ["LAB ACTIVITIES", "NICE DAY", "KITTY", "INTERESTING", "PARTY"];
+const PAGE_SIZE = 4;
+
 export default {
   name: "NewsEventsPage",
   data() {
     return {
       newsList,
       expandedEventYears: {},
-
-      expandedItems: {},
-
+      openLatest: [],
       eventLightbox: { open: false, src: "", alt: "" },
 
       memoryList: [
-        require("@/assets/news/lab.png"),
-        require("@/assets/news/group.jpg"),
-        require("@/assets/news/yichuanxuehui.jpg"),
-        require("@/assets/news/discussion.jpg"),
-        require("@/assets/news/2024teacher.jpg"),
-        require("@/assets/news/2025teacher.jpg"),
-        // require("@/assets/news/wulab.png"),
-        require("@/assets/news/20250619.jpg"),
-        require("@/assets/news/20250703.jpg"),
-        require("@/assets/news/20250418.jpg"),
-        require("@/assets/news/20260209-1.jpg"),
-        require("@/assets/news/20260209-3.jpg"),
+        { src: require("@/assets/news/group2.jpg"), caption: "Wulab group photo", feature: true },
+        { src: require("@/assets/news/20260209-1.jpg"), caption: "Feb 9, 2026" },
+        { src: require("@/assets/news/20260209-3.jpg"), caption: "Feb 9, 2026" },
+        { src: require("@/assets/news/yichuanxuehui.jpg"), caption: "Oct 22, 2025" },
+        { src: require("@/assets/news/2025teacher.jpg"), caption: "Sep 10, 2025" },
+        { src: require("@/assets/news/discussion.jpg"), caption: "Jul 30, 2025" },
+        { src: require("@/assets/news/20250703.jpg"), caption: "Jul 3, 2025" },
+        { src: require("@/assets/news/20250619.jpg"), caption: "Jun 19, 2025" },
+        { src: require("@/assets/news/20250418.jpg"), caption: "Apr 18, 2025" },
+        { src: require("@/assets/news/2024teacher.jpg"), caption: "Sep 10, 2024" },
+        { src: require("@/assets/news/group.jpg"), caption: "Aug 26, 2024" }
       ],
 
-      mwCenter: 0,
-      mwRadius: 220
+      mwIndex: -1,
+      mwCols: 4
     };
   },
 
   computed: {
+    /* ✅ 顶部三张大卡：所有条目按日期倒序，取最新 3 条，不再区分类型 */
+    latest() {
+      return (this.newsList || [])
+        .slice()
+        .sort((a, b) => toTime(b.date) - toTime(a.date))
+        .slice(0, 3);
+    },
+
+    /* 顶部已展示的 3 条从年份列表里剔除，避免同一内容紧挨着出现两次 */
+    archiveList() {
+      const shown = new Set(this.latest.map((item) => item.id));
+      return (this.newsList || []).filter((item) => !shown.has(item.id));
+    },
+
     groupedEvents() {
       const getYear = (item) => {
-        const yRaw = item?.date?.year;
+        const yRaw = item && item.date ? item.date.year : "";
         const yNum = parseInt(String(yRaw || "").replace(/\D/g, ""), 10);
         return Number.isFinite(yNum) ? String(yNum) : "Other";
       };
 
-      const monthMap = {
-        jan: 0, january: 0,
-        feb: 1, february: 1,
-        mar: 2, march: 2,
-        apr: 3, april: 3,
-        may: 4,
-        jun: 5, june: 5,
-        jul: 6, july: 6,
-        aug: 7, august: 7,
-        sep: 8, sept: 8, september: 8,
-        oct: 9, october: 9,
-        nov: 10, november: 10,
-        dec: 11, december: 11
-      };
-
-      const toTime = (d) => {
-        const mStr = String(d?.month || "").trim().toLowerCase();
-        const m = monthMap[mStr] ?? 0;
-        const dayNum = parseInt(String(d?.day || "1").replace(/\D/g, ""), 10) || 1;
-        const y = parseInt(String(d?.year || "1970").replace(/\D/g, ""), 10) || 1970;
-        return new Date(y, m, dayNum).getTime();
-      };
-
-      const groups = (this.newsList || []).reduce((acc, item) => {
+      const groups = (this.archiveList || []).reduce((acc, item) => {
         const y = getYear(item);
         if (!acc[y]) acc[y] = [];
         acc[y].push(item);
@@ -204,9 +274,9 @@ export default {
     eventYears() {
       const keys = Object.keys(this.groupedEvents);
       const numeric = keys
-        .filter(k => k !== "Other")
-        .map(k => parseInt(k, 10))
-        .filter(n => Number.isFinite(n))
+        .filter((k) => k !== "Other")
+        .map((k) => parseInt(k, 10))
+        .filter((n) => Number.isFinite(n))
         .sort((a, b) => b - a)
         .map(String);
 
@@ -218,15 +288,33 @@ export default {
       const seen = new Set();
       return (this.memoryList || [])
         .filter(Boolean)
-        .filter((src) => {
-          if (seen.has(src)) return false;
-          seen.add(src);
+        .filter((m) => {
+          if (m && m.more) return true;
+          if (!m || !m.src || seen.has(m.src)) return false;
+          seen.add(m.src);
           return true;
         });
     },
 
-    mwCenterSrc() {
-      return this.memoryImages[this.mwCenter] || "";
+    mwCurrent() {
+      return this.memoryImages[this.mwIndex] || {};
+    },
+
+    /* 照片墙空位：4 列网格里照片 + 大图(4格)之外的剩余格数，按 1~2 格逐张分给省略号卡 */
+    moreCards() {
+      const photos = (this.memoryList || []).filter((m) => m && m.src);
+      if (!photos.length) return [];
+      const small = photos.length - 1; /* 除大图外 */
+      const used = small + 4;
+      const rows = Math.ceil(used / this.mwCols);
+      let slots = rows * this.mwCols - used;
+      const out = [];
+      while (slots > 0) {
+        const span = Math.min(slots, 2);
+        out.push({ span });
+        slots -= span;
+      }
+      return out;
     }
   },
 
@@ -235,14 +323,14 @@ export default {
       this.expandedEventYears[y] = false;
     });
 
-    this.$nextTick(() => this.updateRingRadius());
-    window.addEventListener("resize", this.updateRingRadius);
     window.addEventListener("keydown", this.onKeydown);
+    this.updateMwCols();
+    window.addEventListener("resize", this.updateMwCols);
   },
 
   beforeUnmount() {
-    window.removeEventListener("resize", this.updateRingRadius);
     window.removeEventListener("keydown", this.onKeydown);
+    window.removeEventListener("resize", this.updateMwCols);
   },
 
   methods: {
@@ -251,38 +339,116 @@ export default {
       return `${d.month} ${d.day}, ${d.year}`;
     },
 
+    shortDate(d) {
+      if (!d) return "";
+      return `${String(d.month || "").slice(0, 3)} ${d.day}`;
+    },
+
+    prettyType(t) {
+      const key = String(t || "").trim().toUpperCase();
+      if (TYPE_LABEL[key]) return TYPE_LABEL[key];
+      return key
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    },
+
+    typeClass(t) {
+      const key = String(t || "").trim().toUpperCase();
+      return LIFE_TYPES.includes(key) ? "is-life" : "is-academic";
+    },
+
+    remaining(year) {
+      const total = (this.groupedEvents[year] || []).length;
+      return Math.max(0, total - PAGE_SIZE);
+    },
+
+    /* ✅ 图片自适应：宽幅截图（期刊页/图表，比例 ≥ 1.7）用 contain 完整显示，
+       避免 cover 把两端文字切掉；人物照/活动照仍用 cover 裁切。
+       容器底色从图片四边采样，contain 留白与图片自然衔接。 */
+    autoFit(e) {
+      const img = e && e.target ? e.target : e;
+      if (!img || !img.naturalWidth || !img.naturalHeight) return;
+
+      const box = img.parentElement;
+      if (!box) return;
+
+      const ratio = img.naturalWidth / img.naturalHeight;
+      const isContain = ratio >= 1.7;
+      img.classList.toggle("is-contain", isContain);
+
+      // 只有 contain 才需要填充色（cover 会铺满，底色只会从圆角缝隙里漏出来）
+      if (!isContain) return;
+      const fill = this.sampleEdgeColor(img);
+      if (fill) box.style.backgroundColor = fill;
+    },
+
+    /* 取图片四条边像素的平均色，作为 contain 留白处的填充色 */
+    sampleEdgeColor(img) {
+      try {
+        const S = 24;
+        const cv = document.createElement("canvas");
+        cv.width = S;
+        cv.height = S;
+        const ctx = cv.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return "";
+
+        ctx.drawImage(img, 0, 0, S, S);
+        const d = ctx.getImageData(0, 0, S, S).data;
+
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let n = 0;
+        const add = (x, y) => {
+          const i = (y * S + x) * 4;
+          r += d[i];
+          g += d[i + 1];
+          b += d[i + 2];
+          n++;
+        };
+        for (let k = 0; k < S; k++) {
+          add(k, 0);
+          add(k, S - 1);
+          add(0, k);
+          add(S - 1, k);
+        }
+        if (!n) return "";
+        return `rgb(${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)})`;
+      } catch (err) {
+        // 图片跨域被污染时读不到像素：静默回退到容器默认底色
+        return "";
+      }
+    },
+
     goLink(url) {
       window.open(url, "_blank", "noopener,noreferrer");
     },
 
+    /* ✅ Latest 卡片描述：点击展开 / 收起全文（卡片自身变高，不用浮层） */
+    isLatestOpen(id) {
+      return this.openLatest.indexOf(id) !== -1;
+    },
+
+    toggleLatest(id) {
+      this.openLatest = this.isLatestOpen(id)
+        ? this.openLatest.filter((x) => x !== id)
+        : this.openLatest.concat(id);
+    },
+
     visibleEventsByYear(year) {
       const arr = this.groupedEvents[year] || [];
-      return this.expandedEventYears[year] ? arr : arr.slice(0, 3);
+      return this.expandedEventYears[year] ? arr : arr.slice(0, PAGE_SIZE);
     },
 
     hasMoreEventsByYear(year) {
       const arr = this.groupedEvents[year] || [];
-      return arr.length > 3;
+      return arr.length > PAGE_SIZE;
     },
 
     toggleEventYear(year) {
       this.expandedEventYears = {
         ...this.expandedEventYears,
         [year]: !this.expandedEventYears[year]
-      };
-    },
-
-    needsExpand(text) {
-      const t = text ? String(text) : "";
-      return t.length > 160;
-    },
-    isItemExpanded(id) {
-      return !!this.expandedItems[id];
-    },
-    toggleItem(id) {
-      this.expandedItems = {
-        ...this.expandedItems,
-        [id]: !this.expandedItems[id]
       };
     },
 
@@ -301,52 +467,32 @@ export default {
     },
     onKeydown(e) {
       if (e.key === "Escape" && this.eventLightbox.open) this.closeEventImage();
-    },
-
-    updateRingRadius() {
-      const el = this.$refs.mwRing;
-      if (!el) return;
-      const w = el.clientWidth;
-      const h = el.clientHeight;
-      const size = Math.min(w, h * 1.1);
-      const r = Math.max(140, Math.min(280, size / 2 - 60));
-      this.mwRadius = r;
-    },
-
-    mwSelect(i) {
-      this.mwCenter = i;
-    },
-
-    mwRingItemStyle(i) {
-      const n = this.memoryImages.length || 1;
-      const center = this.mwCenter % n;
-
-      let d = i - center;
-      if (d > n / 2) d -= n;
-      if (d < -n / 2) d += n;
-
-      const angle = (2 * Math.PI * i) / n;
-      const x = Math.cos(angle) * this.mwRadius;
-      const y = Math.sin(angle) * this.mwRadius;
-      const z = 20 - Math.abs(d);
-
-      if (i === center) {
-        return {
-          transform: `translate(-50%, -50%) translate(0px, 0px) scale(1)`,
-          zIndex: 1,
-          opacity: 0,
-          pointerEvents: "none"
-        };
+      if (this.mwIndex >= 0) {
+        if (e.key === "Escape") this.closeMemory();
+        if (e.key === "ArrowLeft") this.stepMemory(-1);
+        if (e.key === "ArrowRight") this.stepMemory(1);
       }
+    },
 
-      const scale = Math.max(0.85, 1 - Math.abs(d) * 0.05);
-      const rot = d * -6;
+    openMemory(i) {
+      const m = this.memoryImages[i];
+      if (m && m.more) return;
+      this.mwIndex = i;
+      document.body.style.overflow = "hidden";
+    },
 
-      return {
-        transform: `translate(-50%, -50%) translate(${x}px, ${y}px) rotate(${rot}deg) scale(${scale})`,
-        zIndex: String(100 + z),
-        opacity: 1
-      };
+    closeMemory() {
+      this.mwIndex = -1;
+      document.body.style.overflow = "";
+    },
+
+    stepMemory(d) {
+      const n = this.memoryImages.length || 1;
+      this.mwIndex = (this.mwIndex + d + n) % n;
+    },
+
+    updateMwCols() {
+      this.mwCols = window.innerWidth <= 768 ? 2 : 4;
     }
   }
 };
@@ -354,229 +500,420 @@ export default {
 
 <style scoped>
 .news-wrapper { width: 100%; display: flex; justify-content: center; }
+
 .news-shell {
   width: 100%;
   max-width: 1200px;
-  padding: 120px 20px 40px 20px;
+  padding: 96px 20px 64px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: left;
 
   --accent: #2f5d8a;
-  --badgeBg: #f0f4fb;
-  --badgeText: #1a3e6e;
+  --ink: #16324f;
   --border: #e3ebf5;
-  --shadow: 0 4px 14px rgba(15, 60, 120, 0.08);
-  --shadowHover: 0 16px 36px rgba(15, 60, 120, 0.16);
+  --muted: #8b96a3;
 }
+
 .news-content { width: 100%; min-width: 0; }
 
-.section-head { display: flex; justify-content: flex-start; margin-bottom: 14px; }
-.center-head{ justify-content: center; }
-
-.section-badge {
-  width: 140px;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  background: var(--badgeBg);
-  border-radius: 12px;
-  padding: 0 12px;
-  box-shadow: 0 4px 12px rgba(15, 60, 120, 0.2);
-  color: var(--badgeText);
-  font-weight: 700;
-  font-size: 30px;
-  white-space: nowrap;
+.page-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
-.section-badge-center{ justify-content: center; }
 
-.year-badge{
-  width: 75px;
-  height: 35px;
-  justify-content: center;
-  font-size: 23px;
+/* ✅ 板块标题：大号浅字 + 右侧引出一条淡线 */
+.block-title {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 20px;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 36px;
   font-weight: 700;
-  letter-spacing: 3px;
-  background: #dbe8f7;
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 10px 26px rgba(15,60,120,0.12);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #8ca6bf;
+}
+.block-title::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: #d9e5f2;
 }
 
-/* EVENTS grid */
-.news-grid {
-  width: 100%;
+/* ===== HIGHLIGHTS ===== */
+.hl-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
-  align-items: stretch;
+  gap: 20px;
+  align-items: start;   /* ✅ 展开的那张自己变高，不连带拉高邻居 */
 }
 
-.news-card{
-  background:#fff;
-  border-radius:16px 16px 28px 16px;
-  border:1px solid var(--border);
-  box-shadow:var(--shadow);
-  overflow:hidden;
-  padding:14px 16px 56px 16px;
-  position:relative;
-  transition:transform .2s ease, box-shadow .2s ease;
+.hl-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hl-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(15, 60, 120, 0.12);
 }
 
-.news-meta{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-.news-date{ font-size:15px; font-weight:900; color:var(--accent); }
-.news-type{
-  height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--border);
-  background:rgba(47,93,138,0.08); color:var(--accent); font-size:13px; font-weight:900; white-space:nowrap;
+.hl-media {
+  aspect-ratio: 16 / 9;
+  background: #f4f8fd;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.hl-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  display: block;
+  transition: transform 0.35s ease;
+}
+.hl-card:hover .hl-img { transform: scale(1.02); }
+.hl-img.is-contain { object-fit: contain; }
+
+.hl-body {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 14px 16px 16px;
+  flex: 1 1 auto;
 }
 
-.news-image{
-  width:100%;
-  height:180px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  overflow:hidden;
-  box-shadow:0 2px 10px rgba(15,60,120,0.08);
-  background:#fff;
-  margin-bottom:12px;
-  display:flex; align-items:center; justify-content:center;
+.hl-meta { display: flex; align-items: center; gap: 8px; }
+.hl-date { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+.hl-title {
+  margin: 0;
+  font-size: 16.5px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(1.4em * 2);
+}
+
+.hl-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #5d6b7a;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1 1 auto;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.hl-desc:hover { color: #2f5d8a; }
+
+/* ✅ 点开：解除截断，卡片自身被撑高，不弹浮层 */
+.hl-desc.is-open {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+.hl-link {
+  display: block;          /* ✅ 按钮与占位 span 同一种盒子，避免基准线差 */
+  margin-top: auto;
+  align-self: flex-start;
+  line-height: 20px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+}
+.hl-link:hover { text-decoration: underline; }
+.hl-link.is-placeholder { visibility: hidden; pointer-events: none; }
+
+/* 类型徽章 */
+.ntag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.ntag.is-academic { background: #eaf2fb; color: #2f5d8a; }
+.ntag.is-life { background: #f2f5f8; color: #7b8794; }
+
+/* ===== ARCHIVE ===== */
+.tl-section { margin-top: 40px; }
+.tl-year + .tl-year { margin-top: 30px; }
+
+.year-title {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 6px;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #8ca6bf;
+}
+.year-title::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: #e2ebf6;
+}
+
+.tl-list { list-style: none; margin: 0; padding: 0; }
+
+.tl-item {
+  display: grid;
+  grid-template-columns: 64px 104px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 2px;
+  border-bottom: 1px solid #eef3f9;
+}
+.tl-item:last-child { border-bottom: none; }
+
+.tl-date {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tl-thumb {
+  width: 104px;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f4f8fd;
+  cursor: zoom-in;
+  display: block;
+}
+.tl-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  display: block;
+}
+.tl-thumb img.is-contain { object-fit: contain; }
+.tl-thumb:hover { border-color: #bcd2e8; }
+.tl-thumb.is-empty { cursor: default; }
+
+.tl-main { min-width: 0; }
+.tl-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+.tl-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.tl-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #6b7887;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tl-link {
+  justify-self: end;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tl-link:hover { text-decoration: underline; }
+
+.tl-actions { display: flex; justify-content: center; padding: 16px 0 4px; }
+.tl-more {
+  padding: 7px 18px;
+  border: 1px solid #c9d8e9;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.tl-more:hover { background: #f4f8fd; border-color: #a8c2dc; }
+
+/* ===== MEMORY WALL ===== */
+.memory-wall { margin-top: 44px; }
+
+.mw-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  gap: 14px;
+}
+
+.mw-tile {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #eef3f8;
+  cursor: zoom-in;
   position: relative;
+  aspect-ratio: 4 / 3;
+  -webkit-tap-highlight-color: transparent;
 }
-.news-image img{ width:100%; height:100%; object-fit:cover; display:block; }
-.clickable-img{ cursor: pointer; }
-
-/* ✅ 放大镜：一个伪元素同时画“圆底 + SVG 放大镜”，不会只剩圈 */
-.news-image::after{
-  content:"";
-  position:absolute;
-  right:10px;
-  bottom:10px;
-  width:34px;
-  height:34px;
-  border-radius:999px;
-  background-color: rgba(255,255,255,0.92);
-  border:1px solid rgba(0,0,0,0.10);
-  box-shadow:0 8px 18px rgba(0,0,0,0.15);
-
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232f5d8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 18px 18px;
-
-  opacity:0;
-  transform: scale(0.92);
-  transition: opacity .15s ease, transform .15s ease;
-  pointer-events:none;
+.mw-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.news-image:hover::after{
-  opacity:1;
-  transform: scale(1);
+.mw-tile:hover img,
+.mw-tile:focus-visible img { transform: scale(1.035); }
+.mw-tile.mw-feature {
+  grid-column: 2 / span 2;
+  grid-row: 1 / span 2;
+  aspect-ratio: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 26px rgba(24, 46, 70, 0.12);
 }
-.news-image.placeholder::after{ display:none; } /* 没图不显示 */
-
-/* hover 微亮提示 */
-.news-image:hover .clickable-img{ filter: brightness(1.02); }
-
-.news-title{
-  font-size:17px; font-weight:900; color:var(--accent);
-  line-height:1.35; text-align:left; margin-bottom:10px; word-break:break-word;
+.mw-tile.mw-feature .mw-cap { font-size: 13px; padding: 34px 14px 12px; }
+.mw-tile.mw-more {
+  cursor: default;
+  aspect-ratio: auto;
+  align-self: stretch;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
 }
-
-.news-desc{
-  font-size:14px; color:#444; line-height:1.75; text-align:left;
-  word-break:break-word; overflow-wrap:anywhere;
-  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden;
-}
-.news-desc.expanded{ display:block; -webkit-line-clamp:unset; overflow:visible; }
-
-.read-more{
-  position:absolute; left:16px; bottom:14px;
-  background:transparent; border:none; padding:0; cursor:pointer;
-  font-size:14px; font-weight:900; color:var(--accent);
-}
-.read-more:hover{ text-decoration:underline; }
-
-.expand-btn{
-  position:absolute; right:16px; bottom:14px;
-  background:transparent; border:none; padding:0; cursor:pointer;
-  font-size:12px; font-weight:700; color:#6b7280;
-}
-.expand-btn:hover{ color:var(--accent); text-decoration:underline; }
-
-.events-actions{ margin-top:14px; display:flex; justify-content:center; }
-.toggle-btn{
-  background:transparent !important; border:none !important; box-shadow:none !important; padding:0 !important;
-  cursor:pointer; font-size:18px; font-weight:900; color:var(--accent);
-}
-.toggle-btn:hover{ text-decoration:underline; }
-
-.year-divider{ margin:26px 0 18px 0; height:1px; background:linear-gradient(to right, transparent, #e5e7eb, transparent); }
-
-/* MEMORY WALL */
-.memory-wall{ margin-top:24px; }
-.mw-badge{ width:260px; height:42px; }
-
-.mw-ring-wrap{ width:100%; display:flex; justify-content:center; margin-top:10px; padding:0 10px; box-sizing:border-box; }
-
-.mw-ring{
-  width:min(2400px, 100%);
-  height:600px;
-  position:relative;
-  border:1px solid var(--border);
-  border-radius:100px;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(47,93,138,0.06) 0 35%, rgba(255,255,255,0) 36%),
-    radial-gradient(circle at 50% 50%, rgba(47,93,138,0.10) 0 52%, rgba(255,255,255,0) 53%),
-    linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-  box-shadow:0 10px 26px rgba(15,60,120,0.10);
+.mw-more-dots {
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  color: #b9c8d6;
+  font-weight: 700;
+  transform: translateY(-2px);
+  user-select: none;
 }
 
-.mw-center{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:2000; pointer-events:none; }
-.mw-center-img{
-  width:auto; height:auto; max-width:60%; max-height:60%;
-  object-fit:contain; border-radius:18px; box-shadow:0 22px 60px rgba(15,60,120,0.22); background:#fff;
+
+.mw-tile:focus-visible { outline: 2px solid #a8c2dc; outline-offset: 2px; }
+
+.mw-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 26px 11px 10px;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: #fff;
+  text-align: left;
+  background: linear-gradient(180deg, rgba(10, 30, 50, 0), rgba(10, 30, 50, 0.55) 46%, rgba(10, 30, 50, 0.78));
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
 }
+.mw-tile:hover .mw-cap,
+.mw-tile:focus-visible .mw-cap { opacity: 1; }
 
-.mw-rimg{
-  position:absolute; 
-  left:50%; 
-  top:50%;
-  width:180px; 
-  height:140px;
-  border-radius:14px; 
-  border:1px solid var(--border);
-  background:#fff; overflow:hidden; box-shadow:0 2px 10px rgba(15,60,120,0.10);
-  cursor:pointer; padding:0;
-  transition:transform 520ms cubic-bezier(.2,.8,.2,1), box-shadow 260ms ease, opacity 260ms ease;
-  will-change:transform;
+.mw-empty { text-align: center; font-weight: 800; color: #7b8794; padding: 14px 0; }
+
+.mw-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 4px;
 }
-.mw-rimg img{ width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; user-select:none; -webkit-user-drag:none; }
+.mw-nav:hover { background: rgba(255, 255, 255, 0.32); }
+.mw-nav.prev { left: 22px; }
+.mw-nav.next { right: 22px; }
 
-.mw-empty{ text-align:center; font-weight:800; color:#7b8794; padding:14px 0; }
 
-/* Lightbox */
-.evt-lightbox{
+/* ===== Lightbox ===== */
+.evt-lightbox {
   position: fixed;
   inset: 0;
   z-index: 6000;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 18px;
 }
-.evt-lightbox-inner{
+.evt-lightbox-inner {
   position: relative;
   background: #fff;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 16px 50px rgba(0,0,0,0.35);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35);
   padding: 10px;
 }
-.evt-lightbox-img{
+.evt-lightbox-img {
   display: block;
   max-width: 78vw;
   max-height: 78vh;
@@ -584,31 +921,52 @@ export default {
   background: #fff;
   border-radius: 10px;
 }
-.evt-lightbox-close{
+.evt-lightbox-close {
   position: absolute;
   top: 10px;
   right: 10px;
   width: 34px;
   height: 34px;
   border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.92);
   cursor: pointer;
   font-size: 18px;
   line-height: 32px;
 }
 
-@media (max-width: 1024px){
-  .news-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .mw-rimg{ width:160px; height:120px; }
-  .mw-ring{ height:560px; }
-  .mw-center-img{ max-width:86%; max-height:86%; }
+@media (max-width: 1024px) {
+  .tl-item { grid-template-columns: 56px 92px minmax(0, 1fr); gap: 14px; }
+  .tl-thumb { width: 92px; }
+  .tl-link { grid-column: 3; justify-self: start; margin-top: 2px; }
 }
-@media (max-width: 768px){
-  .news-shell { padding: 120px 18px 32px 18px; }
-  .news-grid { grid-template-columns: 1fr; }
-  .mw-rimg{ width:140px; height:104px; }
-  .mw-ring{ height:460px; }
-  .mw-center-img{ max-width:92%; max-height:92%; }
+
+@media (max-width: 768px) {
+  .news-shell { padding: 96px 18px 48px; }
+
+  .block-title { font-size: 26px; gap: 12px; margin-bottom: 16px; }
+  .block-title span { white-space: nowrap; }
+  .year-title { font-size: 26px; gap: 12px; }
+
+  .hl-grid { grid-template-columns: 1fr; gap: 16px; }
+
+  .tl-item {
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 5px 12px;
+    padding: 14px 0;
+    align-items: start;
+  }
+  .tl-thumb { grid-column: 1; grid-row: 1 / span 3; width: 84px; aspect-ratio: 1 / 1; }
+  .tl-date { grid-column: 2; grid-row: 1; font-size: 11.5px; font-weight: 500; }
+  .tl-main { grid-column: 2; grid-row: 2; }
+  .tl-link { grid-column: 2; grid-row: 3; justify-self: start; margin-top: 2px; font-size: 12.5px; }
+  .tl-head { margin-bottom: 2px; }
+  .tl-title { font-size: 14.5px; }
+  .tl-desc { -webkit-line-clamp: 2; line-clamp: 2; }
+
+  .mw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .mw-tile.mw-feature { grid-column: 1 / -1; grid-row: auto; aspect-ratio: 3 / 2; }
+  .mw-nav.prev { left: 10px; }
+  .mw-nav.next { right: 10px; }
 }
 </style>

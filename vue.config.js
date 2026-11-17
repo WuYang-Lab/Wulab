@@ -6,6 +6,9 @@ module.exports = defineConfig({
 
   chainWebpack: (config) => {
     config.module.rule("md").test(/\.md$/).type("asset/source");
+
+    // Software 文档页正文：以字符串形式内联（src/views/softdoc/content/*.tpl.html）
+    config.module.rule("softdocTpl").test(/\.tpl\.html$/).type("asset/source");
     
     // 设置 HTML 页面标题
     config.plugin("html").tap((args) => {
@@ -25,6 +28,11 @@ module.exports = defineConfig({
   publicPath: process.env.NODE_ENV === "production" ? "/Wulab/" : "/",
 
   devServer: {
+    // 绑定 0.0.0.0：让同一局域网内的其他机器可以通过本机 IP 访问
+    host: "0.0.0.0",
+    port: 8081,
+    // 允许任意 Host 头，避免用 IP / 主机名访问时被 dev-server 拦成 403 Invalid Host header
+    allowedHosts: "all",
     proxy: {
       "/api": {
         target: "http://localhost:3001",

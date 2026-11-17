@@ -32,7 +32,7 @@ export const newsList = [
     id: 4,
     image: require("@/assets/news/yichuanxuehui.jpg"),
     title: "Academic conference exchange",
-    description: "Fang, Haibing, Kai and Lulu attended the inaugural ceremony of the Human Population Health and Common Disease Genetics Branch of the Genetics Society of China.",
+    description: "Fang, Haibin, Kai and Lulu attended the inaugural ceremony of the Human Population Health and Common Disease Genetics Branch of the Genetics Society of China.",
     date: { month: "October", day: "22", year: "2025" },
     type: "ACADEMIC",
     link: ""
@@ -97,7 +97,7 @@ export const newsList = [
     image: require("@/assets/news/20250418.jpg"),
     title: "Cat ! ! !",
     description: "His name is 'QianFan'",
-    date: { month: "June", day: "19", year: "2025" },
+    date: { month: "April", day: "18", year: "2025" },
     type: "KITTY",
     link: ""
   },
@@ -133,7 +133,7 @@ export const newsList = [
     id: 15,
     image: require("@/assets/news/20241210.png"),
     title: "Student Seminar",
-    description: "Wenjian has been invited to give a student seminar presenting his recent statistical method for imporving power of association test work.",
+    description: "Wenjian has been invited to give a student seminar presenting his recent statistical method for improving power of association test work.",
     date: { month: "December", day: "10", year: "2024" },
     type: "SEMINAR",
     link: "https://mp.weixin.qq.com/s/QNlkpCdE7rtSzFZkQNUIcA"
@@ -172,8 +172,8 @@ export const newsList = [
   {
     id: 19,
     image: require("@/assets/news/NC-lu.png"),
-    title: "Publication",
-    description: "Congratiulations to Lulu on the publication of the Age-related hearing loss paper in Nature Communications!",
+    title: "Cross-ancestry GWAS of age-related hearing loss in Nature Communications",
+    description: "Congratulations to Lulu on the publication of the Age-related hearing loss paper in Nature Communications!",
     date: { month: "February", day: "21", year: "2026" },
     type: "PUBLICATION",
     link: "https://www.nature.com/articles/s41467-026-69894-z?utm_source=researchgate.net&utm_medium=article"
@@ -182,8 +182,8 @@ export const newsList = [
   {
     id: 20,
     image: require("@/assets/news/NG-yang.png"),
-    title: "Publication",
-    description: "Congratiulations to Yang on the publication of his GWFM work in Nature Genetics! A huge milestone for the lab and truly inspiring for all of us.",
+    title: "GWFM fine-mapping identifies causal variants in Nature Genetics",
+    description: "Congratulations to Yang on the publication of his GWFM work in Nature Genetics! A huge milestone for the lab and truly inspiring for all of us.",
     date: { month: "March", day: "30", year: "2026" },
     type: "PUBLICATION",
     link: "https://www.nature.com/articles/s41588-026-02549-3"
@@ -192,8 +192,8 @@ export const newsList = [
   {
     id: 21,
     image: require("@/assets/news/npj-aging-kai.png"),
-    title: "Publication",
-    description: "Congratiulations to Kai on the publication of her human longevity paper in npj Aging!",
+    title: "Longevity-linked epigenetic aging in npj Aging",
+    description: "Congratulations to Kai on the publication of her human longevity paper in npj Aging!",
     date: { month: "April", day: "16", year: "2026" },
     type: "PUBLICATION",
     link: "https://www.nature.com/articles/s41514-026-00384-8"
@@ -207,5 +207,25 @@ export const newsList = [
     date: { month: "August", day: "26", year: "2026" },
     type: "CONGRATULATION",
     link: ""
+  },
+
+  {
+    id: 23,
+    image: require("@/assets/news/gjxj-lulu.jpg"),
+    title: "National Scholarship for Doctoral Students Awarded to Lulu",
+    description: "Congratulations to Lulu on being awarded the 2026 National Scholarship for Doctoral Students, well done.",
+    date: { month: "October", day: "9", year: "2026" },
+    type: "CONGRATULATION",
+    link: ""
+  },
+
+  {
+    id: 24,
+    image: require("@/assets/news/wenjian_scnet.png"),
+    title: "How can AI help streamline the process of genetic data analysis and research management ?",
+    description: "Wenjian has been invited to give a seminar presenting his recent work on AI-assisted genetic data analysis and research management.",
+    date: { month: "November", day: "5", year: "2026" },
+    type: "CONFERENCE",
+    link: "https://mp.weixin.qq.com/s/qRy2vCh8mN9qU3BgBRtuIw?scene=1"
   },
 ];

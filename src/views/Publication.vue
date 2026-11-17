@@ -1,64 +1,188 @@
 <template>
   <div class="pub-wrapper">
     <div class="pub-shell">
-      <!-- ✅ 标题：整页左上角（在左侧导航栏上方） -->
       <h1 class="page-title">Publications</h1>
-      <div class="pub-container">
-        <!-- 左侧年份导航（不在底板内） -->
-        <div class="year-sidebar">
-          <div
-            v-for="y in sortedYears"
-            :key="y"
-            class="year-link"
-            :class="{ active: activeYear === y }"
-            @click="scrollToYear(y)"
-          >
-            {{ y }}
+
+      <section class="featured">
+        <div class="sec-head">
+          <h2 class="sec-title">Featured publications</h2>
+        </div>
+
+        <div class="featured-grid">
+          <article v-for="f in featuredVisible" :key="f.title" class="fcard">
+            <a
+              class="fthumb"
+              :href="f.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              :title="'Open paper: ' + f.title"
+            >
+              <img :src="f.cover" :alt="f.journal + ' first page'" loading="lazy" />
+            </a>
+            <div class="fmeta">
+              <span class="fjournal">{{ f.journal }}</span>
+              <span class="fyear">{{ f.year }}</span>
+            </div>
+            <a class="ftitle" :href="f.url" target="_blank" rel="noopener noreferrer">{{ f.title }}</a>
+            <p class="fauthors">{{ f.authors }}</p>
+          </article>
+        </div>
+
+        <button
+          v-if="featured.length > featuredFirst"
+          class="more-btn"
+          @click="showAllFeatured = !showAllFeatured"
+        >
+          {{ showAllFeatured ? "Show less" : "Show more …" }}
+        </button>
+      </section>
+
+      <section class="allpubs">
+        <div class="sec-head">
+          <h2 class="sec-title">All publications</h2>
+          <span class="sec-note">{{ publications.length }} papers</span>
+        </div>
+
+        <div class="pub-container">
+          <nav class="year-sidebar">
+            <div
+              v-for="y in sortedYears"
+              :key="y"
+              class="year-link"
+              :class="{ active: activeYear === y }"
+              @click="scrollToYear(y)"
+            >
+              {{ y }}
+            </div>
+          </nav>
+
+          <div class="pub-content-board">
+            <section
+              v-for="y in sortedYears"
+              :key="y"
+              :id="yearId(y)"
+              class="year-section"
+              ref="yearSections"
+            >
+              <h3 class="year-title">
+                <span>{{ y }}</span>
+                <em>{{ groupedPublications[y].length }} {{ groupedPublications[y].length === 1 ? "paper" : "papers" }}</em>
+                <i></i>
+              </h3>
+
+              <ul class="pub-list">
+                <li v-for="(pub, idx) in groupedPublications[y]" :key="idx" class="pub-item">
+                  <a class="pub-title" :href="pub.journalUrl" target="_blank" rel="noopener noreferrer">
+                    {{ pub.title }}
+                  </a>
+                  <div class="pub-sub">
+                    <span class="pub-authors">{{ pub.authors }}</span>
+                    <span class="pub-journal">{{ pub.journal }}</span>
+                  </div>
+                </li>
+              </ul>
+            </section>
           </div>
         </div>
-
-        <!-- 右侧正文（有底板） -->
-        <div class="pub-content-board">
-          <section
-            v-for="y in sortedYears"
-            :key="y"
-            :id="yearId(y)"
-            class="year-section"
-            :class="{ active: activeYear === y }"
-            ref="yearSections"
-          >
-            <h2 class="year-title">
-              <span class="year-chip" :class="{ active: activeYear === y }">
-                {{ y }}
-              </span>
-            </h2>
-
-            <ul class="pub-list">
-              <li v-for="(pub, idx) in groupedPublications[y]" :key="idx" class="pub-item">
-                {{ pub.authors }} ({{ pub.year }}),
-                <a
-                  :href="pub.journalUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="pub-title"
-                >
-                  {{ pub.title }}
-                </a>,
-                <span class="pub-journal">{{ pub.journal }}</span>
-              </li>
-            </ul>
-
-            <div class="year-divider"></div>
-          </section>
-        </div>
-      </div>
-      <!-- /pub-container -->
+      </section>
     </div>
-    <!-- /pub-shell -->
   </div>
 </template>
 
 <script>
+import coverGwfm from "@/assets/pubs/gwfm.jpg";
+import coverArhl from "@/assets/pubs/arhl.jpg";
+import coverOvarian from "@/assets/pubs/gb-ovarian.jpg";
+import coverNpjAging from "@/assets/pubs/npj-aging.jpg";
+import coverOpera from "@/assets/pubs/opera.jpg";
+import coverIntegrative from "@/assets/pubs/nc-integrative.jpg";
+import coverPai from "@/assets/pubs/pai.jpg";
+import coverT2d from "@/assets/pubs/t2d.jpg";
+
+/* Featured: the first four are shown by default, the rest sit behind the More button.
+   Each cover is the rendered first page of the paper PDF and links to the article URL. */
+const FEATURED = [
+  {
+    cover: coverGwfm,
+    journal: "Nature Genetics",
+    year: 2026,
+    title: "Genome-wide fine-mapping improves identification of causal variants",
+    authors: "Wu Y, Zheng Z, Thibaut L, et al.",
+    date: "2026-03-30",
+    url: "https://www.nature.com/articles/s41588-026-02549-3"
+  },
+  {
+    cover: coverArhl,
+    journal: "Nature Communications",
+    year: 2026,
+    title:
+      "Multi-ancestry GWAS of age-related hearing loss identifies 140 loci and key cellular mechanisms",
+    authors: "Shi L, He H, Li J, et al.",
+    date: "2026-02-21",
+    url: "https://www.nature.com/articles/s41467-026-69894-z"
+  },
+  {
+    cover: coverOvarian,
+    journal: "Genome Biology",
+    year: 2026,
+    title:
+      "Multi-omics pleiotropic association analyses reveal functionally relevant genes and druggable pathways for ovarian aging",
+    authors: "Lian X, Song S, Lou C, et al.",
+    date: "2026-05-28",
+    url: "https://link.springer.com/article/10.1186/s13059-026-04118-7"
+  },
+  {
+    cover: coverNpjAging,
+    journal: "npj Aging",
+    year: 2026,
+    title: "Genetic and molecular factors underlying human longevity and epigenetic aging",
+    authors: "Gai K, Li W, Li J, et al.",
+    date: "2026-04-16",
+    url: "https://www.nature.com/articles/s41514-026-00384-8"
+  },
+  {
+    cover: coverOpera,
+    journal: "Cell Genomics",
+    year: 2023,
+    title:
+      "Joint analysis of GWAS and multi-omics QTL summary statistics reveals a large fraction of GWAS signals shared with molecular phenotypes",
+    authors: "Wu Y, Qi T, Wray NR, et al.",
+    date: "2023-08-10",
+    url: "https://doi.org/10.1016/j.xgen.2023.100344"
+  },
+  {
+    cover: coverIntegrative,
+    journal: "Nature Communications",
+    year: 2018,
+    title:
+      "Integrative analysis of omics summary data reveals putative mechanisms underlying complex traits",
+    authors: "Wu Y, Zeng J, Zhang F, et al.",
+    date: "2018-03-02",
+    url: "https://www.nature.com/articles/s41467-018-03371-0"
+  },
+  {
+    cover: coverPai,
+    journal: "Nature Communications",
+    year: 2020,
+    title:
+      "Promoter-anchored chromatin interactions predicted from genetic analysis of epigenomic data",
+    authors: "Wu Y, Qi T, Wang H, et al.",
+    date: "2020-04-28",
+    url: "https://www.nature.com/articles/s41467-020-15587-0"
+  },
+  {
+    cover: coverT2d,
+    journal: "Nature Communications",
+    year: 2018,
+    title:
+      "Genome-wide association analyses identify 143 risk variants and putative regulatory mechanisms for type 2 diabetes",
+    authors: "Xue A, Wu Y, Zhu Z, et al.",
+    date: "2018-07-27",
+    url: "https://www.nature.com/articles/s41467-018-04951-w"
+  }
+];
+
+
 export default {
   name: "PublicationPage",
 
@@ -67,15 +191,26 @@ export default {
       activeYear: null,
       observer: null,
 
-      // ✅ header 固定高度（你顶部 navbar 70px，再多留一点间距）
+      // fixed header offset
       scrollOffset: 90,
+      featuredFirst: 4,
+      showAllFeatured: false,
+      featuredList: FEATURED,
       publications: [
+        {
+          year: 2026,
+          authors: "Shi L, Li W, Yi W and Wu Y",
+          title:
+            " Beyond the linear genome: A population-scale Chinese pangenome for human genetics.",
+          journal: "The Innovation Life 4:100256.",
+          journalUrl: "https://doi.org/10.59717/j.xinn-life.2026.100256"
+        },
         {
           year: 2026,
           authors: "Lian, X., Song, S., Lou, C. et al.",
           title:
-            "Multi-omics pleiotropic association analyses reveal functionally relevant genes and druggable pathways for ovarian aging",
-          journal: "Genome Biol.",
+            "Multi-omics pleiotropic association analyses reveal functionally relevant genes and druggable pathways for ovarian aging.",
+          journal: "Genome Biol. 27(1):239",
           journalUrl: "https://link.springer.com/article/10.1186/s13059-026-04118-7"
         },
         {
@@ -83,7 +218,7 @@ export default {
           authors: "Gai, K., Li, W., Li, J. et al.",
           title:
             "Genetic and molecular factors underlying human longevity and epigenetic aging.",
-          journal: "npj Aging.",
+          journal: "npj Aging. 12(1):84",
           journalUrl: "https://www.nature.com/articles/s41514-026-00384-8"
         },
         {
@@ -362,6 +497,13 @@ export default {
     };
   },
   computed: {
+    /* newest first */
+    featured() {
+      return [...this.featuredList].sort((a, b) => b.date.localeCompare(a.date));
+    },
+    featuredVisible() {
+      return this.showAllFeatured ? this.featured : this.featured.slice(0, this.featuredFirst);
+    },
     groupedPublications() {
       return this.publications.reduce((acc, pub) => {
         const key = pub.year < 2017 ? "Before 2017" : String(pub.year);
@@ -403,10 +545,10 @@ export default {
       const el = document.getElementById(this.yearId(y));
       if (!el) return;
 
-      // ✅ 点击立即高亮
+      // highlight immediately on click
       this.activeYear = y;
 
-      // ✅ 精确 offset 滚动（比 scrollIntoView 稳）
+      // precise offset scroll
       const top = el.getBoundingClientRect().top + window.pageYOffset - this.scrollOffset;
       window.scrollTo({ top, behavior: "smooth" });
     },
@@ -443,153 +585,337 @@ export default {
 </script>
 
 <style scoped>
-/* 页面居中版心 */
+/* page shell */
 .pub-wrapper {
   width: 100%;
   display: flex;
   justify-content: center;
 }
-
-/* ✅ 外壳：统一控制标题与内容的左对齐 */
 .pub-shell {
   width: 100%;
   max-width: 1200px;
-  padding: 40px 20px;
+  box-sizing: border-box;
+  padding: 96px 20px 64px;   /* 72px fixed header + breathing */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: left;
 }
 
-/* ✅ 标题：在整页左上角（左侧导航栏上方） */
+/* page title kept for screen readers only */
 .page-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #000;
-  text-align: left;
-  margin-bottom: 24px;
-
-  visibility: hidden; /* ✅ 不显示，但保留占位，布局不变 */
-}
-
-
-/* 总容器：左侧导航 + 右侧底板 */
-.pub-container {
-  display: flex;
-  width: 100%;
-  text-align: left;
-}
-
-/* 左侧年份列（保持你的原风格） */
-.year-sidebar {
-  width: 70px;
-  margin-right: 20px;
-  position: sticky;
-  top: 40%;
-  transform: translateY(-50%);
-  align-self: flex-start;
-}
-
-.year-link {
-  font-size: 16px;
-  font-weight: 600;
-  color: #9aa4af;
-  cursor: pointer;
-  margin-bottom: 12px;
-  transition: color 0.15s ease;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
   white-space: nowrap;
 }
 
-.year-link.active {
-  color: #004680;
+/* section headers */
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 0 0 20px;
+}
+.sec-head::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: #d9e5f2;
+  transform: translateY(-4px);
+}
+.sec-title {
+  flex: none;
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: #8ca6bf;
+}
+.sec-note {
+  flex: none;
+  font-size: 12.5px;
+  color: #a3b1c0;
 }
 
-.year-link:hover {
+/* Featured */
+.featured {
+  margin-bottom: 48px;
+}
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 26px 18px;
+}
+
+.fthumb {
+  display: block;
+  line-height: 0;
+  border: 1px solid #e3ebf5;
+  border-radius: 3px;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.fthumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.fthumb:hover {
+  border-color: #2f5d8a;
+  box-shadow: 0 0 0 1px #2f5d8a inset;
+}
+
+.fmeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 10px 0 7px;
+}
+.fjournal {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1c3a5e;
+}
+.fyear {
+  flex: none;
+  font-size: 12px;
+  color: #a2a2a2;
+}
+
+.ftitle {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #1a1a1a;
+  text-decoration: none;
+  min-height: 67.5px;
+}
+.ftitle:hover {
+  color: #2f5d8a;
   text-decoration: underline;
 }
 
-/* 右侧底板 */
+.fauthors {
+  margin: 7px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #8a8a8a;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.more-btn {
+  display: block;
+  margin: 24px auto 0;
+  padding: 7px 15px;
+  font-size: 13px;
+  color: #2f5d8a;
+  background: #fff;
+  border: 1px solid #d7e2f0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.more-btn:hover {
+  background: #f4f8fd;
+  border-color: #b9cfe8;
+}
+
+/* All publications */
+.pub-container {
+  display: flex;
+  width: 100%;
+}
+
+.year-sidebar {
+  width: 96px;
+  flex: none;
+  margin-right: 10px;
+  position: sticky;
+  top: 120px;
+  align-self: flex-start;
+  padding-top: 4px;
+}
+.year-link {
+  font-size: 13.5px;
+  color: #9aa4af;
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  white-space: nowrap;
+}
+.year-link:hover {
+  color: #2f5d8a;
+}
+.year-link.active {
+  color: #2f5d8a;
+  background: #eaf2fb;
+  font-weight: 700;
+}
+
 .pub-content-board {
   flex: 1;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+  min-width: 0;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 28px 32px;
   border: 1px solid #e3ebf5;
-  box-shadow: 0 4px 14px rgba(15, 60, 120, 0.08);
+  border-radius: 14px;
+  padding: 22px 20px 18px;
 }
 
-/* 年份区块 */
-.year-section {
-  margin-bottom: 44px;
-}
-
-/* 年份标题 */
+/* year header doubles as the divider between groups */
 .year-title {
-  margin-bottom: 16px;
-}
-
-/* 年份 chip */
-.year-chip {
-  display: inline-block;
-  padding: 4px 12px;
-  background: #f1f5f9;
-  border-radius: 6px;
-  font-size: 25px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 30px 0 8px;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 24px;
   font-weight: 700;
-  color: #4b5563;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: #8ca6bf;
+}
+.year-section:first-of-type .year-title {
+  margin-top: 0;
+}
+.year-title em {
+  font-style: normal;
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #a3b1c0;
+}
+.year-title i {
+  flex: 1 1 auto;
+  height: 1px;
+  background: #e2ebf6;
+  transform: translateY(-4px);
 }
 
-.year-chip.active {
-  background: #e2e8f0;
-  color: #004680;
-}
-
-/* 列表 */
 .pub-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .pub-item {
-  font-size: 16px;
-  line-height: 1.7;
-  margin-bottom: 10px;
-  text-align: justify;
-  text-justify: inter-word;
+  padding: 9px 0;
+  border-bottom: 1px solid #f1f5fa;
+}
+.pub-item:last-child {
+  border-bottom: 0;
 }
 
-/* 文章标题 */
 .pub-title {
-  font-style: italic;
-  color: #004680;
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.45;
+  font-weight: 500;
+  color: #12263c;
   text-decoration: none;
 }
-
 .pub-title:hover {
+  color: #2f5d8a;
   text-decoration: underline;
 }
 
-/* 期刊 */
+.pub-sub {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 3px;
+}
+.pub-authors {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #7c8794;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .pub-journal {
-  color: #555;
+  flex: none;
+  font-size: 13px;
+  color: #2f5d8a;
 }
 
-/* 年份分隔线 */
-.year-divider {
-  margin-top: 30px;
-  height: 1px;
-  background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+/* Responsive */
+@media (max-width: 1080px) {
+  .featured-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .ftitle {
+    min-height: 0;
+  }
 }
 
-/* responsive：小屏隐藏侧栏 */
-@media (max-width: 768px) {
+@media (max-width: 860px) {
+  .featured-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 14px;
+  }
   .year-sidebar {
     display: none;
   }
   .pub-content-board {
-    padding: 22px 18px;
+    padding: 20px 16px 16px;
+  }
+  .sec-title {
+    font-size: 22px;
+  }
+  .year-title {
+    font-size: 21px;
+  }
+  .year-title em,
+  .sec-note {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .pub-shell {
+    padding: 6px 14px 48px;
+  }
+  .sec-title {
+    font-size: 19px;
+  }
+  .year-title {
+    font-size: 19px;
+    gap: 12px;
+  }
+  .fjournal {
+    font-size: 13px;
+  }
+  .ftitle {
+    font-size: 14px;
+  }
+  .fauthors,
+  .pub-authors {
+    font-size: 12.5px;
+  }
+  .pub-title {
+    font-size: 14px;
+  }
+  .pub-journal {
+    font-size: 12.5px;
+  }
+  .pub-sub {
+    gap: 10px;
   }
 }
 </style>

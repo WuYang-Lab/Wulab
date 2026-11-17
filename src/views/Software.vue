@@ -1,77 +1,98 @@
 <template>
-  <div class="software-page">
-    <!-- 页面标题 -->
-    <div class="software-header">
-      <h1 class="software-title">Software</h1>
+  <div class="software-shell">
+    <h2 class="block-title">Software</h2>
+
+    <div class="sw-toolbar">
+      <div class="sw-search">
+        <svg class="sw-search-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+          <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <input
+          v-model="keyword"
+          type="text"
+          class="sw-search-input"
+          placeholder="Search software…"
+        />
+      </div>
+
+      <div class="sw-filters">
+        <button
+          class="sw-chip"
+          :class="{ active: activeCat === '' }"
+          @click="activeCat = ''"
+        >All</button>
+        <button
+          v-for="c in categories"
+          :key="c"
+          class="sw-chip"
+          :class="{ active: activeCat === c }"
+          @click="activeCat = c"
+        >{{ c }}</button>
+      </div>
     </div>
 
-    <div class="software-content">
-      <!-- ✅ 左侧导航：按 Publications 风格（sticky 居中 + 可滚动 + active 自动可视） -->
-      <nav class="software-sidebar" ref="navWrap">
-        <div
-          v-for="item in softwareList"
-          :key="item.id"
-          ref="navItems"
-          class="software-link-item"
-          :class="{ active: activeIndex === idToIndex[item.id] }"
-          @click="scrollTo(idToIndex[item.id])"
-        >
-          {{ item.name }}
+    <p class="sw-empty" v-if="filteredList.length === 0">No software matched your search.</p>
+
+    <div class="sw-list">
+      <div
+        v-for="item in filteredList"
+        :key="item.id"
+        class="sw-card"
+      >
+        <div class="sw-head">
+          <a
+            v-if="!item.route"
+            :href="item.link"
+            target="_blank"
+            rel="noopener"
+            class="sw-blocklink"
+          >
+            <div class="sw-icon">
+              <img :src="item.icon" :alt="item.name" />
+            </div>
+
+            <div class="sw-heading">
+              <h3 class="sw-name">{{ item.name }}</h3>
+              <p class="sw-sub" v-if="item.subtitle">{{ item.subtitle }}</p>
+            </div>
+          </a>
+
+          <router-link
+            v-else
+            :to="item.route"
+            class="sw-blocklink"
+          >
+            <div class="sw-icon">
+              <img :src="item.icon" :alt="item.name" />
+            </div>
+
+            <div class="sw-heading">
+              <h3 class="sw-name">{{ item.name }}</h3>
+              <p class="sw-sub" v-if="item.subtitle">{{ item.subtitle }}</p>
+            </div>
+          </router-link>
+
+          <a
+            v-if="item.github"
+            :href="item.github"
+            target="_blank"
+            rel="noopener"
+            class="sw-gh"
+            title="View on GitHub"
+          >
+            <svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+              />
+            </svg>
+          </a>
         </div>
-      </nav>
 
-      <!-- 右侧内容 -->
-      <div class="software-list">
-        <section
-          v-for="item in softwareList"
-          :key="item.id"
-          class="software-card"
-          ref="cards"
-          :id="cardId(item)"
-        >
-          <div class="card-body">
-            <!-- 图标圆 -->
-            <div class="icon-wrap">
-              <img :src="item.icon" class="card-icon" />
-            </div>
-
-            <!-- 文本区域 -->
-            <div class="card-text">
-              <p class="card-overview" :class="{ collapsed: !item.expanded }">
-                <!-- 内部路由跳转 -->
-                <span
-                  v-if="item.route"
-                  class="software-link"
-                  @click="$router.push(item.route)"
-                >
-                  {{ item.name }}
-                </span>
-
-                <!-- 外部链接 -->
-                <a
-                  v-else
-                  :href="item.link"
-                  target="_blank"
-                  rel="noopener"
-                  class="software-link"
-                >
-                  {{ item.name }}
-                </a>
-
-                {{ item.description }}
-              </p>
-
-              <!-- More / Less -->
-              <span
-                v-if="item.description.length > 120"
-                class="toggle-more"
-                @click="item.expanded = !item.expanded"
-              >
-                {{ item.expanded ? "Less" : "More" }}
-              </span>
-            </div>
-          </div>
-        </section>
+        <p class="sw-desc">
+          {{ item.description }}
+        </p>
       </div>
     </div>
   </div>
@@ -83,47 +104,42 @@ export default {
 
   data() {
     return {
-      activeIndex: 0,
-      observer: null,
-
-      // ✅ 顶部 navbar 高度 + 间距（按你 Publications 的写法）
-      scrollOffset: 90,
+      keyword: "",
+      activeCat: "",
 
       softwareList: [
         {
-          id: 1,
-          name: "SMR-multi",
-          icon: require("@/assets/software/smrmulti.png"),
-          link: "https://yanglab.westlake.edu.cn/software/smr/#Multi-SNP-basedSMRtest",
+          id: 3,
+          name: "GWFM",
+          icon: require("@/assets/software/gwfm.png"),
+          route: "/software/GWFM",
+          category: "Fine-mapping",
+          subtitle: "Genome-wide Fine Mapping",
           description:
-            "is a multi-SNP extension of the Summary-data-based Mendelian Randomization framework that integrates GWAS and multi-omics summary statistics to test for pleiotropic associations between molecular traits and complex phenotypes, increasing detection power over single-SNP SMR for prioritizing putative causal genes and regulatory elements at GWAS loci.",
+            "A genome-wide fine-mapping framework that jointly models all common SNPs with functional annotations to improve causal variant identification, delivering enhanced error control, mapping power, precision, replication, and cross-ancestry phenotype prediction compared with traditional locus-specific fine-mapping methods.",
           expanded: false
         },
         {
           id: 2,
           name: "OPERA",
           icon: require("@/assets/software/OPERA.png"),
-          link: `${process.env.BASE_URL}software/OPERA/`,
+          route: "/software/OPERA",
+          github: "https://github.com/wuyangf7/OPERA",
+          category: "Mendelian randomization",
+          subtitle: "Omics Pleiotropic Association",
           description:
-            "(Omics PlEiotRopic Association) is a software tool for testing the combinatorial pleiotropic associations between multiple molecular phenotypes and a complex trait of interest, using summary-level data from GWAS and molecular QTL studies. It can be used to prioritize molecular phenotypes that mediate the genetic effects for a complex trait and provide further mechanistic interpretation of the GWAS signals.",
+            "A software tool for testing the combinatorial pleiotropic associations between multiple molecular phenotypes and a complex trait of interest, using summary-level data from GWAS and molecular QTL studies. It can be used to prioritize molecular phenotypes that mediate the genetic effects for a complex trait and provide further mechanistic interpretation of the GWAS signals.",
           expanded: false
         },
         {
-          id: 3,
-          name: "GWFM",
-          icon: require("@/assets/software/gwfm.png"),
-          link: "https://gctbhub.cloud.edu.au/software/gctb/#Genome-wideFine-mappinganalysis",
+          id: 1,
+          name: "SMR-multi",
+          icon: require("@/assets/software/smrmulti.png"),
+          link: "https://yanglab.westlake.edu.cn/software/smr/#Multi-SNP-basedSMRtest",
+          category: "Mendelian randomization",
+          subtitle: "Multi-SNP-based SMR analysis",
           description:
-            "(Genome Wide Fine Mapping) is a genome-wide fine-mapping framework that jointly models all common SNPs with functional annotations to improve causal variant identification, delivering enhanced error control, mapping power, precision, replication, and cross-ancestry phenotype prediction compared with traditional locus-specific fine-mapping methods.",
-          expanded: false
-        },
-        {
-          id: 4,
-          name: "GCTB portal",
-          icon: require("@/assets/software/gctb.png"),
-          route: "/software/gctb",
-          description:
-            "is an online tool to facilitate the genetic architecture analysis of complex traits, including SNP-based heritability, polygenicity and the joint distribution of effect sizes and minor allele frequencies.",
+            "A multi-SNP extension of the Summary-data-based Mendelian Randomization framework that integrates GWAS and multi-omics summary statistics to test for pleiotropic associations between molecular traits and complex phenotypes, increasing detection power over single-SNP SMR for prioritizing putative causal genes and regulatory elements at GWAS loci.",
           expanded: false
         },
         {
@@ -131,297 +147,264 @@ export default {
           name: "GWAStoolkit",
           icon: require("@/assets/software/gwastoolkit.png"),
           link: "https://github.com/Crazzy-Rabbit/GWAStoolkit",
+          github: "https://github.com/Crazzy-Rabbit/GWAStoolkit",
+          category: "Toolkit",
+          subtitle: "GWAS summary statistics toolkit",
           description:
-            "is an unified, high-performance C++ toolkit for processing GWAS summary statistics.",
+            "An unified, high-performance C++ toolkit for processing GWAS summary statistics.",
           expanded: false
         }
-      ]
-    };
+      ]    };
   },
 
   computed: {
-    // ✅ 方案 A：不用 v-for 的 idx，改用 id -> index 映射（稳定、无 eslint 报错）
-    idToIndex() {
-      const map = Object.create(null);
-      this.softwareList.forEach((s, i) => {
-        map[s.id] = i;
+    categories() {
+      const set = [];
+      this.softwareList.forEach(s => {
+        if (s.category && set.indexOf(s.category) === -1) set.push(s.category);
       });
-      return map;
-    }
-  },
-
-  watch: {
-    activeIndex() {
-      // ✅ active 变化时，确保左侧当前项在可视范围（解决“点了看不到”）
-      this.$nextTick(() => this.keepNavItemVisible());
-    }
-  },
-
-  mounted() {
-    this.initObserver();
-    this.$nextTick(() => this.keepNavItemVisible());
-  },
-
-  beforeUnmount() {
-    if (this.observer) this.observer.disconnect();
-  },
-
-  methods: {
-    cardId(item) {
-      return `software-${item.id}`;
+      return set;
     },
 
-    scrollTo(idx) {
-      if (typeof idx !== "number" || idx < 0) return;
-
-      // ✅ 点击立即高亮
-      this.activeIndex = idx;
-
-      const raw = this.$refs.cards;
-      const cards = Array.isArray(raw) ? raw : raw ? [raw] : [];
-      const el = cards[idx];
-      if (!el) return;
-
-      // ✅ 精确 offset 滚动（比 scrollIntoView 更稳）
-      const top = el.getBoundingClientRect().top + window.pageYOffset - this.scrollOffset;
-      window.scrollTo({ top, behavior: "smooth" });
-    },
-
-    initObserver() {
-      this.observer = new IntersectionObserver(
-        entries => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              const idx = Number(entry.target.dataset.idx);
-              if (!Number.isNaN(idx) && idx !== this.activeIndex) {
-                this.activeIndex = idx;
-              }
-            }
-          });
-        },
-        {
-          // 跟 Publications 一样：把“中间区域”当作当前章节
-          rootMargin: "-35% 0px -55% 0px",
-          threshold: 0
-        }
-      );
-
-      this.$nextTick(() => {
-        const raw = this.$refs.cards;
-        const cards = Array.isArray(raw) ? raw : raw ? [raw] : [];
-        cards.forEach((el, idx) => {
-          el.dataset.idx = String(idx);
-          this.observer.observe(el);
-        });
+    filteredList() {
+      const kw = this.keyword.trim().toLowerCase();
+      return this.softwareList.filter(s => {
+        const okCat = !this.activeCat || s.category === this.activeCat;
+        if (!okCat) return false;
+        if (!kw) return true;
+        const hay = (s.name + " " + (s.subtitle || "") + " " + s.description).toLowerCase();
+        return hay.indexOf(kw) !== -1;
       });
-    },
-
-    keepNavItemVisible() {
-      const wrap = this.$refs.navWrap;
-      const rawItems = this.$refs.navItems;
-      const items = Array.isArray(rawItems) ? rawItems : rawItems ? [rawItems] : [];
-      const el = items[this.activeIndex];
-
-      if (!wrap || !el) return;
-
-      // ✅ 只滚动左侧导航容器，不影响页面滚动
-      const padding = 8;
-      const elTop = el.offsetTop;
-      const elBottom = elTop + el.offsetHeight;
-
-      const viewTop = wrap.scrollTop;
-      const viewBottom = viewTop + wrap.clientHeight;
-
-      if (elTop - padding < viewTop) {
-        wrap.scrollTop = Math.max(0, elTop - padding);
-      } else if (elBottom + padding > viewBottom) {
-        wrap.scrollTop = elBottom - wrap.clientHeight + padding;
-      }
     }
   }
 };
 </script>
 
 <style scoped>
-/* 页面整体 */
-.software-page {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-}
-
-.software-header {
-  max-width: 960px;
+.software-shell {
   width: 100%;
-  margin: 20px 0px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 96px 20px 64px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   text-align: left;
-  margin-bottom: 12px;
+
+  --accent: #2f5d8a;
+  --ink: #16324f;
+  --border: #e3ebf5;
+  --muted: #8b96a3;
 }
 
-.software-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #000;
-  visibility: hidden; /* 不显示但占位 */
-}
-
-/* 主体 */
-.software-content {
+/* 板块标题：与其他页一致的浅字 + 右侧引线 */
+.block-title {
   display: flex;
-  gap: 36px;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 30px;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #8ca6bf;
+}
+.block-title::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: #d9e5f2;
 }
 
-/* ✅ 左侧导航：Publication 风格（sticky 居中 + 可滚动） */
-.software-sidebar {
-  width: 180px;
-  margin-right: 20px;
-
-  position: sticky;
-  top: 30%;
-  transform: translateY(-50%);
-  align-self: flex-start;
-
-  /* 多的时候不会把 active 顶出屏幕 */
-  max-height: calc(100vh - 160px);
-  overflow-y: auto;
-  padding-right: 6px;
+/* 单列清单卡（参考 Yang Lab，非完全一致） */
+/* 工具栏：搜索 + 筛选，与网格同宽 */
+.sw-toolbar {
+  max-width: none;
+  margin: 0 0 22px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
 }
 
-.software-link-item {
-  font-size: 16px;
-  font-weight: 600;
-  color: #9aa4af;
-  cursor: pointer;
-  margin-bottom: 12px;
-  transition: color 0.15s ease;
-  white-space: nowrap;
+.sw-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 240px;
+  max-width: 360px;
+  border: 1px solid #c9d8e8;
+  border-radius: 20px;
+  background: #fff;
+  padding: 8px 14px;
 }
-
-.software-link-item.active {
-  color: #004680;
+.sw-search-ico {
+  color: #8b96a3;
+  flex-shrink: 0;
 }
-
-.software-link-item:hover {
-  text-decoration: underline;
-}
-
-/* 右侧列表 */
-.software-list {
+.sw-search-input {
   flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: #16324f;
+}
+.sw-search-input::placeholder {
+  color: #a3b1c0;
+}
+
+.sw-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sw-chip {
+  padding: 6px 14px;
+  border: 1px solid #c9d8e8;
+  border-radius: 16px;
+  background: #fff;
+  font-size: 13px;
+  color: #5c6b7a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sw-chip:hover {
+  border-color: #2f5d8a;
+  color: #2f5d8a;
+}
+.sw-chip.active {
+  background: #2f5d8a;
+  border-color: #2f5d8a;
+  color: #fff;
+}
+
+.sw-empty {
+  padding: 30px 0;
+  text-align: center;
+  font-size: 14px;
+  color: #8b96a3;
+}
+
+.sw-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+  align-items: stretch;
+}
+
+.sw-card {
   display: flex;
   flex-direction: column;
-  gap: 22px;
-}
-
-.software-card {
-  background: linear-gradient(180deg, #f7fbff 0%, #f2f6fb 100%);
-  padding: 22px 24px;
-  border-radius: 14px;
   border: 1px solid #e3ebf5;
-  box-shadow: 0 6px 18px rgba(15, 60, 120, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-radius: 10px;
+  background: #fff;
+  padding: 22px 18px 18px;
+  box-shadow: 0 2px 10px rgba(15, 60, 120, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.sw-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 60, 120, 0.1);
 }
 
-/* 卡片主体 */
-.card-body {
+/* 头部：图标 + 名称/副标题（横向左对齐） */
+.sw-head {
   display: flex;
-  align-items: flex-start;
-  gap: 22px;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eef3f8;
 }
 
-/* 圆形底座（单层实心圆） */
-.icon-wrap {
-  width: 106px;
-  height: 106px;
-  border-radius: 50%;
-  background: #ffffff;
+/* 图标 + 名称 + 全称 作为整体超链接 */
+.sw-blocklink {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.sw-blocklink:hover .sw-name {
+  color: #2f5d8a;
+}
 
+.sw-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #f5f9fd;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
   flex-shrink: 0;
-
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-
-/* hover 微浮起 */
-.software-card:hover .icon-wrap {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
-}
-.software-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 34px rgba(15, 60, 120, 0.14);
-}
-
-/* 图片本体 */
-.card-icon {
-  max-width: 75%;
-  max-height: 75%;
+.sw-icon img {
+  max-width: 64%;
+  max-height: 64%;
   object-fit: contain;
 }
 
-/* 文本区 */
-.card-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align-last: left;
+.sw-heading {
+  text-align: left;
+  min-width: 0;
 }
 
-/* 描述文本 */
-.card-overview {
-  font-size: 18px;
-  color: #555;
-  line-height: 1.7;
+.sw-name {
   margin: 0;
-
-  text-align: justify;
-  text-justify: inter-word;
-}
-
-/* 三行截断 */
-.card-overview.collapsed {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* 软件名 */
-.software-link {
-  font-size: 20px;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", "PingFang SC", Arial, sans-serif;
+  font-size: 18px;
   font-weight: 700;
-  color: #2f5d8a;
-  text-decoration: none;
-  margin-right: 6px;
+  color: #16324f;
+  line-height: 1.2;
 }
 
-.software-link:hover {
-  text-decoration: underline;
+.sw-sub {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: #8b96a3;
 }
 
-/* More / Less */
-.toggle-more {
-  margin-top: 6px;
-  font-size: 14px;
-  color: #2f5d8a;
-  cursor: pointer;
-  user-select: none;
+/* 右上角 GitHub 图标 */
+.sw-gh {
+  margin-left: auto;
+  align-self: flex-start;
+  margin-top: 1px;
+  color: #000;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.sw-gh:hover {
+  color: #000;
+  background: #eef3f8;
 }
 
-.toggle-more:hover {
-  text-decoration: underline;
+/* 描述 */
+.sw-desc {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #55636f;
+  line-height: 1.6;
+  text-align: justify;
 }
 
-/* responsive：小屏隐藏侧栏 */
+/* 响应式 */
+@media (max-width: 1024px) {
+  .sw-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 768px) {
-  .software-sidebar {
-    display: none;
-  }
+  .software-shell { padding: 96px 18px 48px; }
+  .block-title { font-size: 26px; gap: 12px; margin-bottom: 20px; }
+  .sw-list { grid-template-columns: 1fr; gap: 16px; }
+  .sw-card { padding: 18px 18px 16px; }
 }
 </style>
